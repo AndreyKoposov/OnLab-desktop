@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онтологический анализ процессов</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Левая колонка: список процессов в стиле чатов -->
+        <div class="process-list">
+            <div class="process-list-header">
+                📋 Процессы <span>6 активных</span>
+            </div>
+            <div class="process-items">
+                <!-- Процесс 1 -->
+                <div class="process-item">
+                    <div class="process-avatar">П1</div>
+                    <div class="process-info">
+                        <div class="process-name">Закупка сырья</div>
+                        <div class="process-meta">
+                            <span>онтология v2</span>
+                            <span class="badge">24 элемента</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Процесс 2 -->
+                <div class="process-item">
+                    <div class="process-avatar">П2</div>
+                    <div class="process-info">
+                        <div class="process-name">Производство деталей</div>
+                        <div class="process-meta">
+                            <span>онтология v1</span>
+                            <span class="badge">57 элементов</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Процесс 3 -->
+                <div class="process-item">
+                    <div class="process-avatar">П3</div>
+                    <div class="process-info">
+                        <div class="process-name">Контроль качества</div>
+                        <div class="process-meta">
+                            <span>BPMN</span>
+                            <span class="badge">31 элемент</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Процесс 4 -->
+                <div class="process-item">
+                    <div class="process-avatar">П4</div>
+                    <div class="process-info">
+                        <div class="process-name">Логистика и доставка</div>
+                        <div class="process-meta">
+                            <span>онтология 3.0</span>
+                            <span class="badge">19 элементов</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Процесс 5 -->
+                <div class="process-item">
+                    <div class="process-avatar">П5</div>
+                    <div class="process-info">
+                        <div class="process-name">HR-подбор</div>
+                        <div class="process-meta">
+                            <span>пилот</span>
+                            <span class="badge">12 элементов</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Процесс 6 -->
+                <div class="process-item">
+                    <div class="process-avatar">П6</div>
+                    <div class="process-info">
+                        <div class="process-name">Финансовый аудит</div>
+                        <div class="process-meta">
+                            <span>онтология v4</span>
+                            <span class="badge">43 элемента</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Добавим ещё пару для эффекта скролла -->
+                <div class="process-item">
+                    <div class="process-avatar">П7</div>
+                    <div class="process-info">
+                        <div class="process-name">Управление рисками</div>
+                        <div class="process-meta">
+                            <span>новая</span>
+                            <span class="badge">8 элементов</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="process-item">
+                    <div class="process-avatar">П8</div>
+                    <div class="process-info">
+                        <div class="process-name">R&D инновации</div>
+                        <div class="process-meta">
+                            <span>исследование</span>
+                            <span class="badge">22 элемента</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Небольшой футер в левой колонке -->
+            <div class="process-footer">
+                ⚙️ последнее обновление 10 мин назад
+            </div>
+        </div>
+
+        <!-- Правая колонка: кнопки + контент -->
+        <div class="main-panel">
+            <!-- Индикатор состояния соединения -->
+            <div class="connection-status" id="connectionStatus">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span class="status-text" id="statusText">Соединение установлено</span>
+            </div>
+            <!-- Шесть кнопок -->
+            <div class="button-bar">
+                <button class="tab-btn active" id="btn1">Кнопка 1</button>
+                <button class="tab-btn" id="btn2">Кнопка 2</button>
+                <button class="tab-btn" id="btn3">Кнопка 3</button>
+                <button class="tab-btn" id="btn4">Кнопка 4</button>
+                <button class="tab-btn" id="btn5">Кнопка 5</button>
+                <button class="tab-btn" id="btn6">Кнопка 6</button>
+            </div>
+
+            <!-- Динамический контент -->
+            <div class="content-area" id="contentArea">
+                <div class="content-card" id="contentCard">
+                    <div class="content-title" id="contentTitle">
+                        🧬 Панель 1 <span>онтология</span>
+                    </div>
+                    <div id="contentBody" class="placeholder-text">
+                        Здесь будет контент для кнопки 1. Онтологический слой процессов: классификация сущностей, отношения и аксиомы. 
+                        Отображаются базовые метаданные выбранного процесса.
+                    </div>
+                    <div class="tags-container">
+                        <span class="ontology-tag">сущность: activity</span>
+                        <span class="ontology-tag">сущность: роль</span>
+                        <span class="ontology-tag">отношение: participates_in</span>
+                        <span class="ontology-tag">аксиома: временные рамки</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/gui.js"></script>
+    <script src="js/checker.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
