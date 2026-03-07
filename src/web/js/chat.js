@@ -1,6 +1,3 @@
-/**
- * Чат с ИИ - модуль для интеграции в основное приложение
- */
 function startChat() {
     // Состояние чата
     const chatState = {
@@ -46,10 +43,20 @@ function startChat() {
 
     // Загрузка сообщений из localStorage (для демо)
     function loadMessages() {
-        const saved = localStorage.getItem('chatMessages');
-        if (saved) {
+        //const saved = localStorage.getItem('chatMessages');
+        const story = eel.fetch_messages()()
+        if (story) {
             try {
-                chatState.messages = JSON.parse(saved);
+                for (var i = 0; i < story.length; i++) {
+                    msg = story[i]
+                    chatState.messages.push({
+                        text: msg["text"],
+                        sender: msg["sender"],
+                        time: msg["time"],
+                        id: 0
+                    });
+                }
+                //chatState.messages = JSON.parse(saved);
                 renderMessages();
             } catch (e) {
                 console.error('Ошибка загрузки сообщений', e);
@@ -59,29 +66,43 @@ function startChat() {
 
     // Сохранение сообщений
     function saveMessages() {
-        localStorage.setItem('chatMessages', JSON.stringify(chatState.messages));
+        //localStorage.setItem('chatMessages', JSON.stringify(chatState.messages));
     }
 
     // Отправка сообщения
-    function sendMessage() {
+    async function sendMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
 
         // Добавляем сообщение пользователя
-        addMessage(text, 'user');
+        const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+        addMessage(text, 'user', time);
         chatInput.value = '';
 
         // Показываем индикатор печатания
         showTypingIndicator();
-
+        await eel.send_message(text, time)();
+        hideTypingIndicator();
+        const story = await eel.fetch_messages()()
+        chatState.messages = []
+        for (var i = 0; i < story.length; i++) {
+            msg = story[i]
+            chatState.messages.push({
+                text: msg["text"],
+                sender: msg["sender"],
+                time: msg["time"],
+                id: 0
+            });
+        }
+        renderMessages();
         // Имитируем ответ ассистента (в реальном приложении здесь будет API вызов)
-        setTimeout(() => {
-            hideTypingIndicator();
-            
-            // Генерируем ответ в зависимости от команды
-            let response = generateResponse(text);
-            addMessage(response, 'assistant');
-        }, 1000 + Math.random() * 1000);
+        //setTimeout(() => {
+        //    hideTypingIndicator();
+        //    
+        //    // Генерируем ответ в зависимости от команды
+        //    let response = generateResponse(text);
+        //    addMessage(response, 'assistant');
+        //}, 1000 + Math.random() * 1000);
     }
 
     // Генерация ответа (демо-режим)
@@ -126,12 +147,12 @@ function startChat() {
     }
 
     // Добавление сообщения
-    function addMessage(text, sender) {
+    function addMessage(text, sender, time) {
         const message = {
             id: Date.now() + Math.random(),
             text: text,
             sender: sender,
-            time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+            time: time
         };
 
         chatState.messages.push(message);

@@ -48,6 +48,11 @@ def fetch_processes():
     return procs
 
 @eel.expose
+def select_process(pr_id: int):
+    global cur_id
+    cur_id = pr_id
+
+@eel.expose
 def ask_gigachat():
     response = requests.get(
         'http://90.156.155.241/api/gigachat',
@@ -57,60 +62,24 @@ def ask_gigachat():
     return response.json()["content"]
 
 @eel.expose
-def get_processes_list():
-    infos = []
-
-    for proc in processes:
-        infos.append({
-            "id": proc["id"],
-            "name": proc["name"],
-            "avatar": str.upper(proc["name"][0]),
-            "created": proc["created"]
-        })
-
-    return infos
-
-@eel.expose
-def create_new_process(pr_name: str):
-    proc = fm.create_process(ID(), pr_name, "07.03.2026")
-    processes.append(proc)
-    return {
-        "id": proc["id"],
-        "name": proc["name"],
-        "avatar": str.upper(proc["name"][0]),
-        "created": proc["created"]
-    }
-
-@eel.expose
-def rename_process(pr_id: int, new_name: str):
-    proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
-    proc["name"] = new_name
-    fm.save_process(proc)
-
-    return {
-        "id": proc["id"],
-        "name": proc["name"],
-        "avatar": str.upper(proc["name"][0]),
-        "created": proc["created"]
-    }
-
-@eel.expose
-def select_process(pr_id: int):
-    global cur_id
-    cur_id = pr_id
-
-@eel.expose
-def add_message(text: str, sender: str, date: str):
+def send_message(text: str, time: str):
     proc = next(filter(lambda pr: pr["id"] == cur_id, processes))
     msg = {
         "text": text,
-        "user": sender,
-        "date": date
+        "sender": "user",
+        "time": time
     }
     proc["messages"].append(msg)
+    msg = {
+        "text": "Hello, user. My name is GigaChat!",
+        "sender": "assistant",
+        "time": time
+    }
+    proc["messages"].append(msg)
+    fm.save_process(proc)
 
 @eel.expose
-def load_messages():
+def fetch_messages():
     proc = next(filter(lambda pr: pr["id"] == cur_id, processes))
 
     return proc["messages"]
