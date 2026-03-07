@@ -213,7 +213,6 @@ async function initGUI() {
     }
     // Функция открытия модального окна для редактирования
     function openEditModal(id) {
-        deleteMode = false;
         const process = processes.find(p => p.id === id);
         if (process) {
             currentEditId = id;
@@ -261,10 +260,17 @@ async function initGUI() {
             // Редактирование/удаление существующего
             const process = processes.find(p => p.id === currentEditId);
             if (process) {
-                if (deleteMode && name === process.name)
-                    await eel.delete_process(process.id)();
+                if (deleteMode) {
+                    if (name === process.name)
+                        await eel.delete_process(process.id)();
+                    else {
+                        alert('Неверно введено название!');
+                        return;
+                    }
+                }
                 else
                     await eel.rename_process(process.id, name)();
+                
                 await fetch_processes()
             }
         } else {
