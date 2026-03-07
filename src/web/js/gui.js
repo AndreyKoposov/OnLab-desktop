@@ -204,6 +204,7 @@ async function initGUI() {
     function openEditModal(id) {
         const process = processes.find(p => p.id === id);
         if (process) {
+            console.log("Edit process with id " + process.id)
             currentEditId = id;
             modalTitle.textContent = 'Редактировать процесс';
             processNameInput.value = process.name;
@@ -228,7 +229,7 @@ async function initGUI() {
             return;
         }
 
-        if (currentEditId) {
+        if (currentEditId != undefined) {
             // Редактирование существующего
             const process = processes.find(p => p.id === currentEditId);
             if (process) {
