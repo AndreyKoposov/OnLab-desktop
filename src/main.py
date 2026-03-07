@@ -1,14 +1,14 @@
 import eel
 import requests
+from file_manager import FileManager
 
-# Инициализация Eel с папкой с веб-файлами
-eel.init('web')  # папка с index.html, style.css, script.js
 
-# Функция, которая будет доступна из JavaScript
+eel.init('web')
+fm = FileManager()
+processes: list
+
 @eel.expose
 def ask_gigachat():
-    # Здесь ваш код для обращения к вашему промежуточному сервису
-    # или напрямую к GigaChat (но лучше через ваш сервис)
     response = requests.get(
         'http://90.156.155.241/api/gigachat',
         timeout=10
@@ -16,7 +16,20 @@ def ask_gigachat():
     print(response.json()["content"])
     return response.json()["content"]
 
+@eel.expose
+def get_processes_list():
+    infos = []
+
+    for proc in processes:
+        infos.append({
+            "name": proc["name"],
+            "avatar": str.upper(proc["name"][0]),
+            "created": proc["created"]
+        })
+
+    return infos
+
 
 if __name__ == "__main__":
-    # Запуск приложения
+    processes = fm.get_processes()
     eel.start('index.html', size=(3000, 2000))

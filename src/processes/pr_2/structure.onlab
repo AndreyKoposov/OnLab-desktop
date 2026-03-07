@@ -1,0 +1,10 @@
+{
+    "id": 0,
+    "name": "Process name",
+    "created": "01.01.2020",
+
+    "entities": [],
+    "stages": [],
+    "transitions": [],
+    "params": []
+}

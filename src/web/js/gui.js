@@ -1,4 +1,4 @@
-function initGUI() {
+async function initGUI() {
     // Элементы интерфейса
     const btn1 = document.getElementById('btn1');
     const btn2 = document.getElementById('btn2');
@@ -78,16 +78,15 @@ function initGUI() {
     // ========== УПРАВЛЕНИЕ ПРОЦЕССАМИ ==========
     
     // Начальные данные процессов
-    let processes = [
-        { id: 1, name: 'Закупка сырья', avatar: 'П1', badge: '24 элемента', meta: 'онтология v2' },
-        { id: 2, name: 'Производство деталей', avatar: 'П2', badge: '57 элементов', meta: 'онтология v1' },
-        { id: 3, name: 'Контроль качества', avatar: 'П3', badge: '31 элемент', meta: 'BPMN' },
-        { id: 4, name: 'Логистика и доставка', avatar: 'П4', badge: '19 элементов', meta: 'онтология 3.0' },
-        { id: 5, name: 'HR-подбор', avatar: 'П5', badge: '12 элементов', meta: 'пилот' },
-        { id: 6, name: 'Финансовый аудит', avatar: 'П6', badge: '43 элемента', meta: 'онтология v4' },
-        { id: 7, name: 'Управление рисками', avatar: 'П7', badge: '8 элементов', meta: 'новая' },
-        { id: 8, name: 'R&D инновации', avatar: 'П8', badge: '22 элемента', meta: 'исследование' }
-    ];
+    let processes = []
+    infos = await eel.get_processes_list()()
+    for (let i = 0; i < infos.length; i++) {
+        pr_name = infos[i]["name"]
+        pr_avatar = infos[i]["avatar"]
+        pr_created = infos[i]["created"]
+        
+        processes.push({ id: i, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created })
+    }
 
     // DOM элементы
     const processItems = document.getElementById('processItems');
