@@ -6,6 +6,7 @@ from file_manager import FileManager
 eel.init('web')
 fm = FileManager()
 processes: list
+cur_id: int = 0
 
 def ID():
     data = fm.load_app_data()
@@ -51,7 +52,6 @@ def create_new_process(pr_name: str):
 
 @eel.expose
 def rename_process(pr_id: int, new_name: str):
-    print("rename")
     proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
     proc["name"] = new_name
     fm.save_process(proc)
@@ -62,6 +62,28 @@ def rename_process(pr_id: int, new_name: str):
         "avatar": str.upper(proc["name"][0]),
         "created": proc["created"]
     }
+
+@eel.expose
+def select_process(pr_id: int):
+    global cur_id
+    cur_id = pr_id
+
+@eel.expose
+def add_message(text: str, sender: str, date: str):
+    proc = next(filter(lambda pr: pr["id"] == cur_id, processes))
+    msg = {
+        "text": text,
+        "user": sender,
+        "date": date
+    }
+    proc["messages"].append(msg)
+
+@eel.expose
+def load_messages():
+    proc = next(filter(lambda pr: pr["id"] == cur_id, processes))
+
+    return proc["messages"]
+
 
 if __name__ == "__main__":
     processes = fm.get_processes()

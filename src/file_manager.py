@@ -31,7 +31,8 @@ class FileManager():
             "entities": [],
             "stages": [],
             "transitions": [],
-            "params": []
+            "params": [],
+            "messages": []
         }
 
         with open(pr_structure_file, 'w', encoding='utf-8') as file:

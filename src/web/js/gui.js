@@ -8,9 +8,6 @@ async function initGUI() {
     const btn6 = document.getElementById('btn6');
     
     const contentArea = document.getElementById('contentArea');
-    const contentTitle = document.getElementById('contentTitle');
-    const contentBody = document.getElementById('contentBody');
-    const contentCard = document.getElementById('contentCard');
 
     // Массив всех кнопок для управления active-классом
     const allBtns = [btn1, btn2, btn3, btn4, btn5, btn6];
@@ -28,8 +25,7 @@ async function initGUI() {
         <div class="chat-container">
             <!-- Заголовок чата - всегда сверху -->
             <div class="chat-header">
-                <div class="chat-status"></div>
-                <h3>Ассистент по онтологическому анализу</h3>
+                <h3>💬 Ассистент по онтологическому анализу</h3>
             </div>
 
             <!-- Область сообщений - скроллится -->
@@ -128,6 +124,7 @@ async function initGUI() {
         });
 
         // Здесь можно добавить логику загрузки данных выбранного процесса
+        eel.select_process(id)()
         console.log('Выбран процесс:', processes.find(p => p.id === id).name);
     }
 
