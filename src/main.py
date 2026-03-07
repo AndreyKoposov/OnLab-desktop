@@ -6,15 +6,15 @@ eel.init('web')  # папка с index.html, style.css, script.js
 
 # Функция, которая будет доступна из JavaScript
 @eel.expose
-def ask_gigachat(prompt):
+def ask_gigachat():
     # Здесь ваш код для обращения к вашему промежуточному сервису
     # или напрямую к GigaChat (но лучше через ваш сервис)
-    response = requests.post(
+    response = requests.get(
         'http://90.156.155.241/api/gigachat',
-        json={'prompt': prompt},
         timeout=10
     )
-    return response.json()
+    print(response.json()["content"])
+    return response.json()["content"]
 
 
 if __name__ == "__main__":

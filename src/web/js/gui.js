@@ -14,6 +14,22 @@ function initGUI() {
     // Массив всех кнопок для управления active-классом
     const allBtns = [btn1, btn2, btn3, btn4, btn5, btn6];
 
+    // Функция переключения состояния соединения
+    function setConnectionStatus(isOnline) {
+        const indicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
+        if (isOnline) {
+            indicator.classList.remove('offline');
+            indicator.classList.add('online');
+            statusText.textContent = 'Соединение установлено';
+        } else {
+            indicator.classList.remove('online');
+            indicator.classList.add('offline');
+            statusText.textContent = 'Нет соединения';
+        }
+    }
+
     // Функция сброса активного класса и установки нового
     function setActiveButton(activeBtn) {
         allBtns.forEach(btn => btn.classList.remove('active'));
@@ -22,10 +38,8 @@ function initGUI() {
 
     // Функция обновления контента
     function updateContent(btnNumber) {
-        // Меняем заголовок
         contentTitle.innerHTML = `🧬 Панель ${btnNumber} <span>онтология</span>`;
 
-        // Меняем основной текст в зависимости от кнопки
         let mainText = '';
         let tags = [];
 
@@ -61,7 +75,6 @@ function initGUI() {
 
         contentBody.textContent = mainText;
 
-        // Обновляем блок с тегами
         const oldTagsContainer = contentCard.querySelector('.tags-container');
         if (oldTagsContainer) {
             const newTagsContainer = document.createElement('div');
@@ -78,39 +91,180 @@ function initGUI() {
         }
     }
 
-    // Назначаем обработчики кликов
+    // ========== УПРАВЛЕНИЕ ПРОЦЕССАМИ ==========
+    
+    // Начальные данные процессов
+    let processes = [
+        { id: 1, name: 'Закупка сырья', avatar: 'П1', badge: '24 элемента', meta: 'онтология v2' },
+        { id: 2, name: 'Производство деталей', avatar: 'П2', badge: '57 элементов', meta: 'онтология v1' },
+        { id: 3, name: 'Контроль качества', avatar: 'П3', badge: '31 элемент', meta: 'BPMN' },
+        { id: 4, name: 'Логистика и доставка', avatar: 'П4', badge: '19 элементов', meta: 'онтология 3.0' },
+        { id: 5, name: 'HR-подбор', avatar: 'П5', badge: '12 элементов', meta: 'пилот' },
+        { id: 6, name: 'Финансовый аудит', avatar: 'П6', badge: '43 элемента', meta: 'онтология v4' },
+        { id: 7, name: 'Управление рисками', avatar: 'П7', badge: '8 элементов', meta: 'новая' },
+        { id: 8, name: 'R&D инновации', avatar: 'П8', badge: '22 элемента', meta: 'исследование' }
+    ];
+
+    // DOM элементы
+    const processItems = document.getElementById('processItems');
+    const processCount = document.getElementById('processCount');
+    const addProcessBtn = document.getElementById('addProcessBtn');
+
+    // Модальное окно
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.innerHTML = `
+        <div class="modal">
+            <h3 id="modalTitle">Новый процесс</h3>
+            <input type="text" class="modal-input" id="processNameInput" placeholder="Введите название процесса">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="modalCancel">Отмена</button>
+                <button class="modal-btn save" id="modalSave">Сохранить</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    const modalTitle = document.getElementById('modalTitle');
+    const processNameInput = document.getElementById('processNameInput');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalSave = document.getElementById('modalSave');
+
+    // Состояние модального окна
+    let currentEditId = null;
+
+    // Функция обновления счетчика процессов
+    function updateProcessCount() {
+        processCount.textContent = `${processes.length} активных`;
+    }
+
+    // Функция отрисовки списка процессов
+    function renderProcesses() {
+        processItems.innerHTML = '';
+        
+        processes.forEach(process => {
+            const processElement = document.createElement('div');
+            processElement.className = 'process-item';
+            processElement.innerHTML = `
+                <div class="process-avatar">${process.avatar}</div>
+                <div class="process-info">
+                    <div class="process-name-container">
+                        <span class="process-name" title="${process.name}">${process.name}</span>
+                        <button class="edit-process-btn" data-id="${process.id}" title="Редактировать процесс">✎</button>
+                    </div>
+                    <div class="process-meta">
+                        <span>${process.meta}</span>
+                        <span class="badge">${process.badge}</span>
+                    </div>
+                </div>
+            `;
+            
+            processItems.appendChild(processElement);
+        });
+
+        // Добавляем обработчики на кнопки редактирования
+        document.querySelectorAll('.edit-process-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                openEditModal(id);
+            });
+        });
+
+        updateProcessCount();
+    }
+
+    // Функция открытия модального окна для создания
+    function openCreateModal() {
+        currentEditId = null;
+        modalTitle.textContent = 'Новый процесс';
+        processNameInput.value = '';
+        modalOverlay.classList.add('active');
+        processNameInput.focus();
+    }
+
+    // Функция открытия модального окна для редактирования
+    function openEditModal(id) {
+        const process = processes.find(p => p.id === id);
+        if (process) {
+            currentEditId = id;
+            modalTitle.textContent = 'Редактировать процесс';
+            processNameInput.value = process.name;
+            modalOverlay.classList.add('active');
+            processNameInput.focus();
+        }
+    }
+
+    // Функция закрытия модального окна
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+        processNameInput.value = '';
+        currentEditId = null;
+    }
+
+    // Функция сохранения процесса
+    function saveProcess() {
+        const name = processNameInput.value.trim();
+        
+        if (!name) {
+            alert('Введите название процесса');
+            return;
+        }
+
+        if (currentEditId) {
+            // Редактирование существующего
+            const process = processes.find(p => p.id === currentEditId);
+            if (process) {
+                process.name = name;
+                // Обновляем аватар (первые две буквы)
+                process.avatar = name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase() || 'П';
+            }
+        } else {
+            // Создание нового
+            const newId = Math.max(...processes.map(p => p.id), 0) + 1;
+            const avatar = name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase() || 'П';
+            
+            processes.push({
+                id: newId,
+                name: name,
+                avatar: avatar,
+                badge: '0 элементов',
+                meta: 'новый'
+            });
+        }
+
+        renderProcesses();
+        closeModal();
+    }
+
+    // Инициализация
+    renderProcesses();
+
+    // Обработчики для модального окна
+    addProcessBtn.addEventListener('click', openCreateModal);
+    
+    modalCancel.addEventListener('click', closeModal);
+    
+    modalSave.addEventListener('click', saveProcess);
+
+    // Закрытие по клику на оверлей
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Обработчики для кнопок правой панели
     btn1.addEventListener('click', function(e) {
         setActiveButton(btn1);
         updateContent(1);
-
-        prompt_test = `Процесс:
-                Фотолитография — метод получения рисунка на поверхности материала.
-                На подложку наносится фоторезист, который засвечивается через фотошаблон,
-                проявляется, а затем используется для травления или напыления. Фотолитография
-                начинается с нанесения фоторезиста на подложку. Затем происходит засвечивание
-                через фотошаблон, проявление и использование для травления или напыления.
-                
-                ## Задание
-                Выдели основные сущности описанного процесса и верни их в виде JSON строго по шаблону:
-                {
-                    entities: [
-                        "entity_name_1",
-                        "entity_name_2",
-                    ]
-                }
-                `
-        // fetch(`http://localhost:8000/api/entities`, 
-        //     {
-        //         method: "POST",
-        //         headers: {
-        //           "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify({ prompt: prompt_test }),
-        //     }
-        // )
-        // .then(response => response.json())
-        // .then(data => alert(data["content"]))
-        // .catch(error => console.error('Error:', error));
     });
 
     btn2.addEventListener('click', function(e) {
@@ -138,7 +292,10 @@ function initGUI() {
         updateContent(6);
     });
 
-    // Инициализация
+    // Инициализация контента
     setActiveButton(btn1);
     updateContent(1);
+    
+    // Экспортируем функцию для тестирования
+    window.setConnectionStatus = setConnectionStatus;
 }

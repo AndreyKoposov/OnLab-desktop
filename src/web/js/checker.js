@@ -18,6 +18,7 @@ function startChecker() {
     // Запускаем проверку
     connectionChecker.start();
 }
+
 function setConnectionStatus(isOnline) {
     const indicator = document.getElementById('statusIndicator');
     const statusText = document.getElementById('statusText');
@@ -32,6 +33,7 @@ function setConnectionStatus(isOnline) {
         statusText.textContent = 'Нет соединения';
     }
 }
+
 function checkServerConnection(url = window.location.origin, timeout = 5000) {
     // Переменная для хранения интервала
     let intervalId = null;
