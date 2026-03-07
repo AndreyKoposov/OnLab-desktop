@@ -77,16 +77,22 @@ async function initGUI() {
 
     // ========== УПРАВЛЕНИЕ ПРОЦЕССАМИ ==========
     let processes = []
-    // Запрос процессов от python eel
-    infos = await eel.get_processes_list()()
-    // Добавляем процессы в список
-    for (let i = 0; i < infos.length; i++) {
-        pr_id = infos[i]["id"]
-        pr_name = infos[i]["name"]
-        pr_avatar = infos[i]["avatar"]
-        pr_created = infos[i]["created"]
 
-        processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created })
+    // Получение процессов с сервера 
+    async function fetch_processes() {
+        // Очистка списка процессов
+        processes = []
+        // Запрос процессов от python eel
+        infos = await eel.fetch_processes()()
+        // Добавляем процессы в список
+        for (let i = 0; i < infos.length; i++) {
+            pr_id = infos[i]["id"]
+            pr_name = infos[i]["name"]
+            pr_avatar = infos[i]["avatar"]
+            pr_created = infos[i]["created"]
+
+            processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created })
+        }
     }
     // Функция обновления счетчика процессов
     function updateProcessCount() {
@@ -121,10 +127,12 @@ async function initGUI() {
 
     // Состояние модального окна
     let currentEditId = null;
+    let deleteMode = false;
 
     // ID выбранного процесса (по умолчанию первый)
     let selectedProcessId = 1;
 
+    // Обработка нажатия на процесс
     function selectProcess(id) {
         selectedProcessId = id;
         
@@ -142,7 +150,6 @@ async function initGUI() {
         eel.select_process(id)()
         console.log('Выбран процесс:', processes.find(p => p.id === id).name);
     }
-
     // Функция отрисовки списка процессов
     function renderProcesses() {
         processItems.innerHTML = '';
@@ -229,26 +236,19 @@ async function initGUI() {
         }
 
         if (currentEditId != undefined) {
-            // Редактирование существующего
+            // Редактирование/удаление существующего
             const process = processes.find(p => p.id === currentEditId);
             if (process) {
-                new_proc = await eel.rename_process(process.id, name)();
-                process.name = new_proc["name"];
-                process.avatar = new_proc["avatar"];
+                if (deleteMode)
+                    await eel.delete_process(process.id)();
+                else
+                    await eel.rename_process(process.id, name)();
+                await fetch_processes()
             }
         } else {
             // Создание нового
-            new_proc = await eel.create_new_process(name)();
-            processes.push({
-                id: new_proc["id"],
-                name: new_proc["name"],
-                avatar: new_proc["avatar"],
-                badge: '0 элементов',
-                meta: new_proc["created"]
-            });
-
-            // Автоматически выделяем новый процесс
-            selectedProcessId = new_proc["id"];
+            await eel.create_process(name)();
+            await fetch_processes()
         }
 
         renderProcesses();
@@ -256,6 +256,7 @@ async function initGUI() {
     }
 
     // Инициализация
+    await fetch_processes()
     renderProcesses();
 
     // Обработчики для модального окна

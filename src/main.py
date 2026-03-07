@@ -17,6 +17,35 @@ def ID():
     return id_to_return
 
 @eel.expose
+def create_process(pr_name: str):
+    proc = fm.create_process(ID(), pr_name, "07.03.2026")
+    processes.append(proc)
+
+@eel.expose
+def edit_process(pr_id: int, new_name: str):
+    proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
+    proc["name"] = new_name
+    fm.save_process(proc)
+
+@eel.expose
+def delete_process():
+    pass
+
+@eel.expose
+def fetch_processes():
+    procs = []
+
+    for proc in processes:
+        procs.append({
+            "id": proc["id"],
+            "name": proc["name"],
+            "avatar": str.upper(proc["name"][0]),
+            "created": proc["created"]
+        })
+
+    return procs
+
+@eel.expose
 def ask_gigachat():
     response = requests.get(
         'http://90.156.155.241/api/gigachat',
