@@ -39,6 +39,15 @@ class FileManager():
             dump(pr_structure, file, indent=4)
 
         return pr_structure
+    
+    def delete_process(self, pr_id: int):
+        pr_dir = self.work_dir/f"pr_{pr_id}"
+        for child in pr_dir.iterdir():
+            if child.is_file():
+                child.unlink()
+            else:
+                raise SystemError("Directory in process directory!")
+        pr_dir.rmdir()
 
     def save_process(self, process):
         pr_file = self.work_dir/f"pr_{process['id']}"/"structure.onlab"

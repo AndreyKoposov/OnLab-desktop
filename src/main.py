@@ -28,8 +28,10 @@ def edit_process(pr_id: int, new_name: str):
     fm.save_process(proc)
 
 @eel.expose
-def delete_process():
-    pass
+def delete_process(pr_id: int):
+    proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
+    processes.remove(proc)
+    fm.delete_process(pr_id)
 
 @eel.expose
 def fetch_processes():

@@ -163,7 +163,8 @@ async function initGUI() {
                 <div class="process-info">
                     <div class="process-name-container">
                         <span class="process-name" title="${process.name}">${process.name}</span>
-                        <button class="edit-process-btn" data-id="${process.id}" title="Редактировать процесс">✎</button>
+                        <button class="edit-process-btn" data-id="${process.id}" data-type="edit" title="Редактировать процесс">✎</button>
+                        <button class="edit-process-btn" data-id="${process.id}" data-type="delete" title="Удалить процесс">❌</button>
                     </div>
                     <div class="process-meta">
                         <span>${process.meta}</span>
@@ -178,7 +179,7 @@ async function initGUI() {
         // Добавляем обработчики на клик по процессу (для выделения)
         document.querySelectorAll('.process-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                // Не выделяем, если кликнули на кнопку редактирования
+                // Не выделяем, если кликнули на кнопку редактирования или удаления
                 if (e.target.classList.contains('edit-process-btn')) {
                     return;
                 }
@@ -192,7 +193,11 @@ async function initGUI() {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const id = parseInt(btn.dataset.id);
-                openEditModal(id);
+                const type = btn.dataset.type;
+                if (type === "delete")
+                    openDeleteModal(id);
+                else
+                    openEditModal(id);
             });
         });
 
@@ -208,6 +213,7 @@ async function initGUI() {
     }
     // Функция открытия модального окна для редактирования
     function openEditModal(id) {
+        deleteMode = false;
         const process = processes.find(p => p.id === id);
         if (process) {
             currentEditId = id;
@@ -220,11 +226,27 @@ async function initGUI() {
             console.log("Cant find process with id " + process.id)
         }
     }
+    // Функция открытия модального окна для удаления
+    function openDeleteModal(id) {
+        deleteMode = true;
+        const process = processes.find(p => p.id === id);
+        if (process) {
+            currentEditId = id;
+            modalTitle.textContent = 'Удаление процесса! Введите "' + process.name + '"';
+            processNameInput.value = '';
+            modalOverlay.classList.add('active');
+            processNameInput.focus();
+        }
+        else {
+            console.log("Cant find process with id " + process.id)
+        }
+    }
     // Функция закрытия модального окна
     function closeModal() {
         modalOverlay.classList.remove('active');
         processNameInput.value = '';
         currentEditId = null;
+        deleteMode = false;
     }
     // Функция сохранения процесса
     async function saveProcess() {
@@ -239,7 +261,7 @@ async function initGUI() {
             // Редактирование/удаление существующего
             const process = processes.find(p => p.id === currentEditId);
             if (process) {
-                if (deleteMode)
+                if (deleteMode && name === process.name)
                     await eel.delete_process(process.id)();
                 else
                     await eel.rename_process(process.id, name)();
