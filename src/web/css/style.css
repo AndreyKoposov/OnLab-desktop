@@ -556,3 +556,28 @@ body {
         min-height: 100vh;
     }
 }
+
+/* Стили для выделенного процесса */
+.process-item.selected {
+    background: #e1eaf8;
+    border-color: #1f3a6b;
+    border-left-width: 4px;
+    box-shadow: 0 6px 12px -8px #1f3a6b;
+    transform: translateX(2px);
+}
+
+.process-item.selected .process-avatar {
+    background: linear-gradient(145deg, #b8d0f0, #a0bae8);
+    color: #0a1a2f;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.9), 0 4px 8px rgba(20, 60, 120, 0.3);
+}
+
+.process-item.selected .process-name {
+    color: #0a1a2f;
+    font-weight: 700;
+}
+
+.process-item.selected .edit-process-btn {
+    color: #1f3a6b;
+    opacity: 1;
+}

@@ -51,6 +51,7 @@ def create_new_process(pr_name: str):
 
 @eel.expose
 def rename_process(pr_id: int, new_name: str):
+    print("rename")
     proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
     proc["name"] = new_name
     fm.save_process(proc)

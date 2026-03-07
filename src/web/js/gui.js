@@ -122,6 +122,26 @@ async function initGUI() {
         processCount.textContent = `${processes.length} активных`;
     }
 
+    // ID выбранного процесса (по умолчанию первый)
+    let selectedProcessId = 1;
+
+    function selectProcess(id) {
+        selectedProcessId = id;
+        
+        // Обновляем классы у всех элементов
+        document.querySelectorAll('.process-item').forEach(item => {
+            const itemId = parseInt(item.data_id);
+            if (itemId === id) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+
+        // Здесь можно добавить логику загрузки данных выбранного процесса
+        console.log('Выбран процесс:', processes.find(p => p.id === id).name);
+    }
+
     // Функция отрисовки списка процессов
     function renderProcesses() {
         processItems.innerHTML = '';
@@ -129,6 +149,7 @@ async function initGUI() {
         processes.forEach(process => {
             const processElement = document.createElement('div');
             processElement.className = 'process-item';
+            processElement.data_id = process.id
             processElement.innerHTML = `
                 <div class="process-avatar">${process.avatar}</div>
                 <div class="process-info">
@@ -144,6 +165,18 @@ async function initGUI() {
             `;
             
             processItems.appendChild(processElement);
+        });
+
+        // Добавляем обработчики на клик по процессу (для выделения)
+        document.querySelectorAll('.process-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // Не выделяем, если кликнули на кнопку редактирования
+                if (e.target.classList.contains('edit-process-btn')) {
+                    return;
+                }
+                const id = parseInt(item.data_id);
+                selectProcess(id);
+            });
         });
 
         // Добавляем обработчики на кнопки редактирования
@@ -215,6 +248,9 @@ async function initGUI() {
                 badge: '0 элементов',
                 meta: new_proc["created"]
             });
+
+            // Автоматически выделяем новый процесс
+            selectedProcessId = new_proc["id"];
         }
 
         renderProcesses();
