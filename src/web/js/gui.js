@@ -81,11 +81,12 @@ async function initGUI() {
     let processes = []
     infos = await eel.get_processes_list()()
     for (let i = 0; i < infos.length; i++) {
+        pr_id = infos[i]["id"]
         pr_name = infos[i]["name"]
         pr_avatar = infos[i]["avatar"]
         pr_created = infos[i]["created"]
-        
-        processes.push({ id: i, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created })
+
+        processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created })
     }
 
     // DOM элементы
@@ -186,7 +187,7 @@ async function initGUI() {
     }
 
     // Функция сохранения процесса
-    function saveProcess() {
+    async function saveProcess() {
         const name = processNameInput.value.trim();
         
         if (!name) {
@@ -204,15 +205,15 @@ async function initGUI() {
             }
         } else {
             // Создание нового
-            const newId = Math.max(...processes.map(p => p.id), 0) + 1;
-            const avatar = name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase() || 'П';
-            
+            //const newId = Math.max(...processes.map(p => p.id), 0) + 1;
+            //const avatar = name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase() || 'П';
+            new_proc = await eel.create_new_process(name)();
             processes.push({
-                id: newId,
-                name: name,
-                avatar: avatar,
+                id: new_proc["id"],
+                name: new_proc["name"],
+                avatar: new_proc["avatar"],
                 badge: '0 элементов',
-                meta: 'новый'
+                meta: new_proc["created"]
             });
         }
 

@@ -1,8 +1,7 @@
 {
-    "id": 0,
-    "name": "Process name",
-    "created": "01.01.2020",
-
+    "id": 1,
+    "name": "second proc",
+    "created": "07.03.2026",
     "entities": [],
     "stages": [],
     "transitions": [],
