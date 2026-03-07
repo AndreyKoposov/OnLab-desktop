@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Онтологический анализ процессов</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/chat.css">
 </head>
 <body>
     <div class="app">
@@ -12,8 +13,8 @@
         <div class="process-list">
            <div class="process-list-header">
                <span>📋 Процессы</span>
-               <button class="add-process-btn" id="addProcessBtn" title="Добавить новый процесс">+</button>
                <span class="process-count" id="processCount">8 активных</span>
+               <button class="add-process-btn" id="addProcessBtn" title="Добавить новый процесс">+</button>
            </div>
            <div class="process-items" id="processItems">
                <!-- Процессы будут динамически добавляться сюда -->
@@ -42,26 +43,13 @@
 
             <!-- Динамический контент -->
             <div class="content-area" id="contentArea">
-                <div class="content-card" id="contentCard">
-                    <div class="content-title" id="contentTitle">
-                        🧬 Панель 1 <span>онтология</span>
-                    </div>
-                    <div id="contentBody" class="placeholder-text">
-                        Здесь будет контент для кнопки 1. Онтологический слой процессов: классификация сущностей, отношения и аксиомы. 
-                        Отображаются базовые метаданные выбранного процесса.
-                    </div>
-                    <div class="tags-container">
-                        <span class="ontology-tag">сущность: activity</span>
-                        <span class="ontology-tag">сущность: роль</span>
-                        <span class="ontology-tag">отношение: participates_in</span>
-                        <span class="ontology-tag">аксиома: временные рамки</span>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
 
     <script src="/eel.js"></script>
+    <script src="js/chat.js"></script>
     <script src="js/gui.js"></script>
     <script src="js/checker.js"></script>
     <script src="js/main.js"></script>

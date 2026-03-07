@@ -7,6 +7,7 @@ async function initGUI() {
     const btn5 = document.getElementById('btn5');
     const btn6 = document.getElementById('btn6');
     
+    const contentArea = document.getElementById('contentArea');
     const contentTitle = document.getElementById('contentTitle');
     const contentBody = document.getElementById('contentBody');
     const contentCard = document.getElementById('contentCard');
@@ -22,57 +23,45 @@ async function initGUI() {
 
     // Функция обновления контента
     function updateContent(btnNumber) {
-        contentTitle.innerHTML = `🧬 Панель ${btnNumber} <span>онтология</span>`;
+        if (btnNumber == 1)
+        contentArea.innerHTML = `
+        <div class="chat-container">
+            <!-- Заголовок чата - всегда сверху -->
+            <div class="chat-header">
+                <div class="chat-status"></div>
+                <h3>Ассистент по онтологическому анализу</h3>
+            </div>
 
-        let mainText = '';
-        let tags = [];
+            <!-- Область сообщений - скроллится -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Приветственное сообщение -->
+                <div class="message assistant">
+                    <div class="message-bubble">
+                        Здравствуйте! Я ваш ассистент по онтологическому анализу процессов. Чем могу помочь?
+                        <div class="message-time">10:00</div>
+                    </div>
+                </div>
+            </div>
 
-        switch (btnNumber) {
-            case 1:
-                mainText = 'Здесь будет контент для кнопки 1. Онтологический слой процессов: классификация сущностей, отношения и аксиомы. Отображаются базовые метаданные выбранного процесса.';
-                tags = ['сущность: activity', 'сущность: роль', 'отношение: participates_in', 'аксиома: временные рамки'];
-                break;
-            case 2:
-                mainText = 'Контент второй кнопки. Анализ таксономии процессов, иерархия классов и подклассов. Модель онтологии верхнего уровня.';
-                tags = ['класс: процесс', 'подкласс: производственный', 'свойство: имеет_вход', 'свойство: имеет_выход'];
-                break;
-            case 3:
-                mainText = 'Содержимое для кнопки 3. Атрибутивный анализ: объектные свойства и атрибуты данных. Отображение доменов и диапазонов.';
-                tags = ['datatype: string', 'datatype: integer', 'objectProperty: выполняет', 'функциональное свойство'];
-                break;
-            case 4:
-                mainText = 'Вы нажали кнопку 4. Связи между процессами и временные паттерны. Алгебра процессов и онтология событий.';
-                tags = ['событие: старт', 'событие: финиш', 'отношение: последовательность', 'отношение: параллельность'];
-                break;
-            case 5:
-                mainText = 'Кнопка 5. Семантическая разметка и вывод новых знаний. Правила вывода на основе онтологии (SWRL-подобные конструкции).';
-                tags = ['правило: modus_ponens', 'правило: наследование', 'аксиома: транзитивность', 'аксиома: симметричность'];
-                break;
-            case 6:
-                mainText = 'Интерфейс для кнопки 6. Визуализация графа онтологии, метрики и статистика. Здесь будет диаграмма (заглушка).';
-                tags = ['граф: 124 узла', 'граф: 287 ребер', 'плотность 0.04', 'компоненты связности: 2'];
-                break;
-            default:
-                mainText = 'Выберите кнопку';
-                tags = [];
-        }
+            <!-- Область ввода - всегда снизу -->
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Введите сообщение..." autocomplete="off">
+                    <button class="send-btn" id="sendMessageBtn" title="Отправить">➤</button>
+                </div>
 
-        contentBody.textContent = mainText;
-
-        const oldTagsContainer = contentCard.querySelector('.tags-container');
-        if (oldTagsContainer) {
-            const newTagsContainer = document.createElement('div');
-            newTagsContainer.className = 'tags-container';
-            
-            tags.forEach(tagText => {
-                const span = document.createElement('span');
-                span.className = 'ontology-tag';
-                span.textContent = tagText;
-                newTagsContainer.appendChild(span);
-            });
-
-            oldTagsContainer.parentNode.replaceChild(newTagsContainer, oldTagsContainer);
-        }
+                <!-- Кнопки команд -->
+                <div class="command-buttons" id="commandButtons">
+                    <button class="command-btn" data-command="/help">/help</button>
+                    <button class="command-btn" data-command="/analyze">/analyze</button>
+                    <button class="command-btn" data-command="/ontology">/ontology</button>
+                    <button class="command-btn" data-command="/processes">/processes</button>
+                    <button class="command-btn" data-command="/clear">/clear</button>
+                    <button class="command-btn" data-command="/export">/export</button>
+                </div>
+            </div>
+        </div>
+        `;
     }
 
     // ========== УПРАВЛЕНИЕ ПРОЦЕССАМИ ==========
@@ -286,6 +275,7 @@ async function initGUI() {
     btn1.addEventListener('click', function(e) {
         setActiveButton(btn1);
         updateContent(1);
+        startChat()
     });
 
     btn2.addEventListener('click', function(e) {
@@ -314,6 +304,7 @@ async function initGUI() {
     });
 
     // Инициализация контента
-    setActiveButton(btn1);
-    updateContent(1);
+    btn1.click()
+    //setActiveButton(btn1);
+    //updateContent(1);
 }
