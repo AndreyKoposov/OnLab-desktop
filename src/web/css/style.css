@@ -498,3 +498,61 @@ body {
     background: #2c4c8a;
     transform: translateY(-2px);
 }
+
+/* Принудительное растяжение для Eel */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Предотвращает скролл на уровне body */
+}
+
+body {
+    display: flex;
+    padding: 0; /* Убираем отступы */
+}
+
+.app {
+    max-width: none; /* Убираем максимальную ширину */
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0; /* Убираем скругление для более нативного вида */
+    margin: 0;
+    box-shadow: none; /* Убираем тень */
+    border: none; /* Убираем границу */
+}
+
+/* Адаптируем внутренние отступы */
+.process-list {
+    padding-top: 16px;
+}
+
+.process-list-header {
+    padding: 0 20px 16px 20px;
+}
+
+.process-items {
+    padding: 12px;
+}
+
+/* Увеличиваем область контента */
+.content-area {
+    padding: 20px;
+}
+
+.button-bar {
+    padding: 16px 20px 12px 20px;
+}
+
+/* Для очень маленьких экранов оставляем возможность скролла */
+@media (max-width: 700px) {
+    body {
+        overflow: auto;
+    }
+    
+    .app {
+        height: auto;
+        min-height: 100vh;
+    }
+}

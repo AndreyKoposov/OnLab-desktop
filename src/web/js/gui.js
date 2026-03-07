@@ -14,22 +14,6 @@ function initGUI() {
     // Массив всех кнопок для управления active-классом
     const allBtns = [btn1, btn2, btn3, btn4, btn5, btn6];
 
-    // Функция переключения состояния соединения
-    function setConnectionStatus(isOnline) {
-        const indicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
-        
-        if (isOnline) {
-            indicator.classList.remove('offline');
-            indicator.classList.add('online');
-            statusText.textContent = 'Соединение установлено';
-        } else {
-            indicator.classList.remove('online');
-            indicator.classList.add('offline');
-            statusText.textContent = 'Нет соединения';
-        }
-    }
-
     // Функция сброса активного класса и установки нового
     function setActiveButton(activeBtn) {
         allBtns.forEach(btn => btn.classList.remove('active'));
@@ -295,7 +279,4 @@ function initGUI() {
     // Инициализация контента
     setActiveButton(btn1);
     updateContent(1);
-    
-    // Экспортируем функцию для тестирования
-    window.setConnectionStatus = setConnectionStatus;
 }

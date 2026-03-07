@@ -19,4 +19,4 @@ def ask_gigachat():
 
 if __name__ == "__main__":
     # Запуск приложения
-    eel.start('index.html')
+    eel.start('index.html', size=(3000, 2000))

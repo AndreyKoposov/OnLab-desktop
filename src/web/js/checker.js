@@ -17,6 +17,9 @@ function startChecker() {
     });
     // Запускаем проверку
     connectionChecker.start();
+
+    // Экспортируем функцию для тестирования
+    window.setConnectionStatus = setConnectionStatus;
 }
 
 function setConnectionStatus(isOnline) {
