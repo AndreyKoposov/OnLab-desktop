@@ -1,25 +1,22 @@
 function startChecker() {
     var url = "http://90.156.155.241/ping"
-    // Запуск проверки соединения
-    const connectionChecker = checkServerConnection(url);
+    // Создание проверщика
+    const connectionChecker = getConnectionChecker(url, 10000);
     // Устанавливаем обработчики событий
     connectionChecker.onConnectionLost(() => {
-        setConnectionStatus(false)
+        setConnectionStatus(false) // При потере соединения
     });
     connectionChecker.onConnectionRestored(() => {
-        setConnectionStatus(true)
+        setConnectionStatus(true) // При подключении
     });
     connectionChecker.onStatusChange((isConnected, statusCode, error) => {
         setConnectionStatus(isConnected)
         console.log(`Статус соединения: ${isConnected ? 'Подключено' : 'Отключено'}`, 
                     statusCode ? `Код: ${statusCode}` : '',
-                    error ? `Ошибка: ${error.message}` : '');
+                    error ? `Ошибка: ${error.message}` : ''); // Если состояние подключения изменилось
     });
     // Запускаем проверку
     connectionChecker.start();
-
-    // Экспортируем функцию для тестирования
-    window.setConnectionStatus = setConnectionStatus;
 }
 
 function setConnectionStatus(isOnline) {
@@ -37,7 +34,7 @@ function setConnectionStatus(isOnline) {
     }
 }
 
-function checkServerConnection(url = window.location.origin, timeout = 5000) {
+function getConnectionChecker(url, timeout) {
     // Переменная для хранения интервала
     let intervalId = null;
     
@@ -47,16 +44,16 @@ function checkServerConnection(url = window.location.origin, timeout = 5000) {
     // Функция для выполнения проверки соединения
     async function checkConnection() {
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            const controller = new AbortController(); // Для прерывание запроса по истечению timeout
+            const timeoutId = setTimeout(() => controller.abort(), timeout); // Запускаем таймер timeout
             
             const response = await fetch(url, {
                 method: 'HEAD', // Используем HEAD запрос для минимальной нагрузки
                 cache: 'no-cache',
-                signal: controller.signal
+                signal: controller.signal // Привязываем сигнал котнроллера
             });
             
-            clearTimeout(timeoutId);
+            clearTimeout(timeoutId); 
             
             const newStatus = response.ok;
             
@@ -69,8 +66,8 @@ function checkServerConnection(url = window.location.origin, timeout = 5000) {
                 }
                 isConnected = newStatus;
             }
-            
-            // Вызываем колбэк с результатом проверки
+
+            // Если нет - вызываем колбэк с результатом проверки
             onStatusChange?.(newStatus, response.status);
             
         } catch (error) {
@@ -98,7 +95,7 @@ function checkServerConnection(url = window.location.origin, timeout = 5000) {
         if (intervalId === null) {
             // Сразу выполняем первую проверку
             checkConnection();
-            // Затем запускаем интервал
+            // Затем запускаем интервал на секунду
             intervalId = setInterval(checkConnection, 1000);
             console.log('Connection checking started');
         }
