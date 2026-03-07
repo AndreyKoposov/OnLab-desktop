@@ -199,9 +199,9 @@ async function initGUI() {
             // Редактирование существующего
             const process = processes.find(p => p.id === currentEditId);
             if (process) {
-                process.name = name;
-                // Обновляем аватар (первые две буквы)
-                process.avatar = name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase() || 'П';
+                new_proc = await eel.rename_process(process.id, name)();
+                process.name = new_proc["name"];
+                process.avatar = new_proc["avatar"];
             }
         } else {
             // Создание нового

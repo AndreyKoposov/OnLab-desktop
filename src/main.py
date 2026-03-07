@@ -41,6 +41,19 @@ def get_processes_list():
 @eel.expose
 def create_new_process(pr_name: str):
     proc = fm.create_process(ID(), pr_name, "07.03.2026")
+    processes.append(proc)
+    return {
+        "id": proc["id"],
+        "name": proc["name"],
+        "avatar": str.upper(proc["name"][0]),
+        "created": proc["created"]
+    }
+
+@eel.expose
+def rename_process(pr_id: int, new_name: str):
+    proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
+    proc["name"] = new_name
+    fm.save_process(proc)
 
     return {
         "id": proc["id"],

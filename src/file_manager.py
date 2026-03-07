@@ -39,6 +39,12 @@ class FileManager():
 
         return pr_structure
 
+    def save_process(self, process):
+        pr_file = self.work_dir/f"pr_{process['id']}"/"structure.onlab"
+
+        with open(pr_file, 'w', encoding='utf-8') as file:
+            dump(process, file, indent=4)
+
     def load_app_data(self):
         with open(ROOT/"data.json", 'r', encoding='utf-8') as file:
             return load(file)
