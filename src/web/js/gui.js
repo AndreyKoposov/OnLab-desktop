@@ -30,13 +30,6 @@ async function initGUI() {
 
             <!-- Область сообщений - скроллится -->
             <div class="chat-messages" id="chatMessages">
-                <!-- Приветственное сообщение -->
-                <div class="message assistant">
-                    <div class="message-bubble">
-                        Здравствуйте! Я ваш ассистент по онтологическому анализу процессов. Чем могу помочь?
-                        <div class="message-time">10:00</div>
-                    </div>
-                </div>
             </div>
 
             <!-- Область ввода - всегда снизу -->
@@ -90,8 +83,9 @@ async function initGUI() {
             pr_name = infos[i]["name"]
             pr_avatar = infos[i]["avatar"]
             pr_created = infos[i]["created"]
+            pr_option = infos[i]["option"]
 
-            processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created })
+            processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created, option: pr_option })
         }
     }
     // Функция обновления счетчика процессов
@@ -130,12 +124,28 @@ async function initGUI() {
     let deleteMode = false;
 
     // ID выбранного процесса (по умолчанию первый)
-    let selectedProcessId = 1;
+    let selectedProcessId = undefined;
 
     // Обработка нажатия на процесс
     function selectProcess(id) {
         selectedProcessId = id;
-        
+        // Визуальная подсветка
+        highlightProcess(id)
+        // Здесь можно добавить логику загрузки данных выбранного процесса
+        eel.select_process(id)()
+        const process = processes.find(p => p.id === id)
+        const option = process["option"];
+        console.log('Выбран процесс:', process.name);
+        console.log('Текущая опция:', option);
+
+        if (option === 1) btn1.click();
+        if (option === 2) btn2.click();
+        if (option === 3) btn3.click();
+        if (option === 4) btn4.click();
+        if (option === 5) btn5.click();
+        if (option === 6) btn6.click();
+    }
+    function highlightProcess(id) {
         // Обновляем классы у всех элементов
         document.querySelectorAll('.process-item').forEach(item => {
             const itemId = parseInt(item.data_id);
@@ -145,10 +155,6 @@ async function initGUI() {
                 item.classList.remove('selected');
             }
         });
-
-        // Здесь можно добавить логику загрузки данных выбранного процесса
-        eel.select_process(id)()
-        console.log('Выбран процесс:', processes.find(p => p.id === id).name);
     }
     // Функция отрисовки списка процессов
     function renderProcesses() {
@@ -201,6 +207,7 @@ async function initGUI() {
             });
         });
 
+        highlightProcess(selectedProcessId)
         updateProcessCount();
     }
     // Функция открытия модального окна для создания
@@ -269,8 +276,8 @@ async function initGUI() {
                     }
                 }
                 else
-                    await eel.rename_process(process.id, name)();
-                
+                    await eel.edit_process(process.id, name)();
+
                 await fetch_processes()
             }
         } else {
@@ -306,39 +313,69 @@ async function initGUI() {
             closeModal();
         }
     });
+    // Сохранение выбранной опции и обновление значения в списке процессов
+    function set_option(option) {
+        eel.set_option(option)();
+        const process = processes.find(p => p.id === selectedProcessId);
+        process.option = option;
+    }
 
     // Обработчики для кнопок правой панели
     btn1.addEventListener('click', function(e) {
+        if (selectedProcessId == undefined)
+            return;
+
+        set_option(1);
         setActiveButton(btn1);
         updateContent(1);
         startChat()
     });
 
     btn2.addEventListener('click', function(e) {
+        if (selectedProcessId == undefined)
+            return;
+
+        set_option(2);
         setActiveButton(btn2);
         updateContent(2);
     });
 
     btn3.addEventListener('click', function(e) {
+        if (selectedProcessId == undefined)
+            return;
+
+        set_option(3);
         setActiveButton(btn3);
         updateContent(3);
     });
 
     btn4.addEventListener('click', function(e) {
+        if (selectedProcessId == undefined)
+            return;
+
+        set_option(4);
         setActiveButton(btn4);
         updateContent(4);
     });
 
     btn5.addEventListener('click', function(e) {
+        if (selectedProcessId == undefined)
+            return;
+
+        set_option(5);
         setActiveButton(btn5);
         updateContent(5);
     });
 
     btn6.addEventListener('click', function(e) {
+        if (selectedProcessId == undefined)
+            return;
+
+        set_option(6);
         setActiveButton(btn6);
         updateContent(6);
     });
 
     // Сразу нажимаем на чат
-    btn1.click()
+    //btn1.click()
 }

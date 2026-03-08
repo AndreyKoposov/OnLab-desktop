@@ -3,10 +3,24 @@ import requests
 from file_manager import FileManager
 
 
+class AppData():
+    def __init__(self) -> None:
+        self._cur_id: int
+
+    def get_id(self):
+        return self._cur_id
+
+    def set_id(self, cur_id: int):
+        self._cur_id = cur_id
+
+    cur_id = property(get_id, set_id)
+
+
 eel.init('web')
 fm = FileManager()
 processes: list
-cur_id: int = 0
+data = AppData()
+
 
 def ID():
     data = fm.load_app_data()
@@ -34,6 +48,12 @@ def delete_process(pr_id: int):
     fm.delete_process(pr_id)
 
 @eel.expose
+def set_option(option: int):
+    proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
+    proc["option"] = option
+    fm.save_process(proc)
+
+@eel.expose
 def fetch_processes():
     procs = []
 
@@ -42,15 +62,15 @@ def fetch_processes():
             "id": proc["id"],
             "name": proc["name"],
             "avatar": str.upper(proc["name"][0]),
-            "created": proc["created"]
+            "created": proc["created"],
+            "option": proc["option"]
         })
 
     return procs
 
 @eel.expose
 def select_process(pr_id: int):
-    global cur_id
-    cur_id = pr_id
+    data.cur_id = pr_id
 
 @eel.expose
 def ask_gigachat():
@@ -63,7 +83,7 @@ def ask_gigachat():
 
 @eel.expose
 def send_message(text: str, time: str):
-    proc = next(filter(lambda pr: pr["id"] == cur_id, processes))
+    proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
     msg = {
         "text": text,
         "sender": "user",
@@ -80,7 +100,7 @@ def send_message(text: str, time: str):
 
 @eel.expose
 def fetch_messages():
-    proc = next(filter(lambda pr: pr["id"] == cur_id, processes))
+    proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
 
     return proc["messages"]
 

@@ -27,6 +27,7 @@ class FileManager():
             "id": pr_id,
             "name": name,
             "created": created,
+            "option": 1,
 
             "entities": [],
             "stages": [],

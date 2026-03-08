@@ -42,10 +42,10 @@ function startChat() {
     }
 
     // Загрузка сообщений из localStorage (для демо)
-    function loadMessages() {
+    async function loadMessages() {
         //const saved = localStorage.getItem('chatMessages');
-        const story = eel.fetch_messages()()
-        if (story) {
+        const story = await eel.fetch_messages()()
+        if (story.length > 0) {
             try {
                 for (var i = 0; i < story.length; i++) {
                     msg = story[i]
