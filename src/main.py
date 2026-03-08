@@ -1,7 +1,7 @@
 import eel
-import requests
 from file_manager import FileManager
 from config import ROOT
+from assistant import Assistant
 
 
 class AppData():
@@ -21,6 +21,7 @@ eel.init(str(ROOT/'web'))
 fm = FileManager()
 processes: list
 data = AppData()
+assistant = Assistant()
 
 
 def ID():
@@ -74,15 +75,6 @@ def select_process(pr_id: int):
     data.cur_id = pr_id
 
 @eel.expose
-def ask_gigachat():
-    response = requests.get(
-        'http://90.156.155.241/api/gigachat',
-        timeout=10
-    )
-    print(response.json()["content"])
-    return response.json()["content"]
-
-@eel.expose
 def send_message(text: str, time: str):
     proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
     msg = {
@@ -91,13 +83,9 @@ def send_message(text: str, time: str):
         "time": time
     }
     proc["messages"].append(msg)
-    msg = {
-        "text": "Hello, user. My name is GigaChat!",
-        "sender": "assistant",
-        "time": time
-    }
-    proc["messages"].append(msg)
+    assistant.answer(text, proc)
     fm.save_process(proc)
+
 
 @eel.expose
 def fetch_messages():
@@ -108,4 +96,4 @@ def fetch_messages():
 
 if __name__ == "__main__":
     processes = fm.get_processes()
-    eel.start('index.html', size=(3000, 2000))
+    eel.start('index.html', size=(3000, 2000), port=8100)
