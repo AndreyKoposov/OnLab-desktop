@@ -1,6 +1,7 @@
 import eel
 import requests
 from file_manager import FileManager
+from config import ROOT
 
 
 class AppData():
@@ -16,7 +17,7 @@ class AppData():
     cur_id = property(get_id, set_id)
 
 
-eel.init('web')
+eel.init(str(ROOT/'web'))
 fm = FileManager()
 processes: list
 data = AppData()

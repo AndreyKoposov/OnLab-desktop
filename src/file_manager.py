@@ -1,11 +1,16 @@
 from pathlib import Path
 from json import load, dump
 from config import ROOT
+from os import makedirs
 
 
 class FileManager():
     work_dir = ROOT/"processes"
     suffix = ".onlab"
+
+    def __init__(self) -> None:
+        if not Path.exists(self.work_dir):
+            makedirs(self.work_dir)
 
     def get_processes(self) -> list:
         processes_info = []
