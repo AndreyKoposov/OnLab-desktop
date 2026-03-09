@@ -4,8 +4,8 @@ from urllib.parse import unquote
 
 
 class ApiManager():
-    #url = 'http://90.156.155.241/api/'
-    url = 'http://localhost:8000/api/'
+    url = 'http://90.156.155.241/api/'
+    #url = 'http://localhost:8000/api/'
 
     @staticmethod
     def request(prompt: str, path: str):
