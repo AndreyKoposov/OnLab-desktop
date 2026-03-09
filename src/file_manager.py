@@ -57,6 +57,10 @@ class FileManager():
         rdf_file = self.work_dir/f"pr_{process.id}"/"rdf.xml"
         process.rdf.to_xml(str(rdf_file))
 
+    def process_to_png(self, process: Process):
+        img_file = self.work_dir/f"pr_{process.id}"/"rdf"
+        process.rdf.to_img(str(img_file))
+
     def load_xml(self, pr_id: int) -> str:
         pr_file = self.work_dir/f"pr_{pr_id}"/"rdf.xml"
         with open(pr_file, 'r', encoding='utf-8') as file:

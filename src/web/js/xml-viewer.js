@@ -30,7 +30,6 @@ function initXMLviewer() {
     const xmlCopyBtn = document.getElementById('xmlCopyBtn');
     const xmlDownloadBtn = document.getElementById('xmlDownloadBtn');
     const xmlSaveBtn = document.getElementById('xmlSaveBtn');
-    const xmlGraphBtn = document.getElementById('xmlGraphBtn');
 
     // Инициализация
     function initXmlViewer() {
@@ -48,7 +47,6 @@ function initXMLviewer() {
         xmlCopyBtn.addEventListener('click', copyToClipboard);
         xmlDownloadBtn.addEventListener('click', downloadXml);
         xmlSaveBtn.addEventListener('click', saveChanges);
-        xmlGraphBtn.addEventListener('click', downloadAsGraph);
         
         // Обновляем статистику
         updateStats();
@@ -124,28 +122,6 @@ function initXMLviewer() {
         } catch (error) {
             console.error('Ошибка валидации:', error);
             return false;
-        }
-    }
-    
-    // Скачать как граф
-    async function downloadAsGraph() {
-        try {
-            showLoading(true);
-            
-            // Вызов Python функции для генерации графа
-            const result = await eel.export_as_graph(xmlState.currentContent)();
-            
-            if (result.success) {
-                showMessage('Граф сгенерирован и скачан');
-            } else {
-                showError('Ошибка генерации графа');
-            }
-            
-            showLoading(false);
-        } catch (error) {
-            console.error('Ошибка генерации графа:', error);
-            showLoading(false);
-            showError('Не удалось сгенерировать граф');
         }
     }
 

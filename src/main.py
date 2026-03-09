@@ -123,6 +123,7 @@ def validate_xml(content: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     return {"isValid": proc.validate_xml(content)}
 
+
 if __name__ == "__main__":
     processes = fm.get_processes()
     eel.start('index.html', size=(3000, 2000), port=8100)

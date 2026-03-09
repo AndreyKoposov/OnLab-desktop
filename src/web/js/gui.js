@@ -95,9 +95,6 @@ async function initGUI() {
             <button class="xml-btn" id="xmlDownloadBtn" title="Скачать XML файл">
                 ⬇️ Скачать
             </button>
-            <button class="xml-btn" id="xmlGraphBtn" title="Скачать в виде графа">
-                🕸️ Граф
-            </button>
         </div>
        
     </div>
