@@ -1,25 +1,27 @@
 from requests import post, get
+from json import dumps
 from urllib.parse import unquote
 
 
 class ApiManager():
-    #url = 'http://90.156.155.241/api/'
-    url = 'http://localhost:8000/api/'
+    url = 'http://90.156.155.241/api/'
+    #url = 'http://localhost:8000/api/'
 
     @staticmethod
-    def get_entities(prompt: str):
-        data = {"prompt": prompt}
+    def request(prompt: str, path: str):
+        payload = {"prompt": dumps(prompt)}
         headers = {
             'accept': 'application/json',
             "Content-Type": "application/json",
         }
         response = post(
-            ApiManager.url + 'entities',
+            ApiManager.url + path,
             headers=headers,
-            data=data,
+            json=payload,
             timeout=120
         )
-        print(response.json())
+        print(response.json()["content"])
+        return response.json()["content"]
 
 
 # Фотолитография — метод получения рисунка на поверхности материала. 

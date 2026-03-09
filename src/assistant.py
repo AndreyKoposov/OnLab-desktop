@@ -86,19 +86,15 @@ class Assistant():
         # Запрос у gigachat сущностей, этапов и переходов из текста
         # Сущности
         query = p_entities(desc)
-        entities = self.api.get_entities(query)
-
+        entities = self.api.request(query, 'entities')
         # Этапы
-        #query = p_stages(desc)
-        #res = ai.invoke(query)
-        #stages = res['stages']
-
+        query = p_stages(desc)
+        stages = self.api.request(query, 'stages')
         ## Переходы между этапами
-        #query = p_transitions(desc, stages)
-        #res = ai.invoke(query)
-        #transitions = res['transitions']
+        query = p_transitions(desc, stages)
+        transitions = self.api.request(query, 'transitions')
 
         # Вывод результата
-        #self.__answer("Основные сущности процесса:\n- " + "\n- ".join(entities))
-        #self.__answer("Основные этапы процесса:\n- " + "\n- ".join(stages))
-        #self.__answer("Переходы между этапами:\n- " + "\n- ".join(transitions))
+        self.__answer("Основные сущности процесса:\n- " + "\n- ".join(entities))
+        self.__answer("Основные этапы процесса:\n- " + "\n- ".join(stages))
+        self.__answer("Переходы между этапами:\n- " + "\n- ".join(transitions))
