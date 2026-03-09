@@ -2,6 +2,7 @@ import eel
 from file_manager import FileManager
 from config import ROOT
 from assistant import Assistant
+from process import Process
 
 
 class AppData():
@@ -19,7 +20,7 @@ class AppData():
 
 eel.init(str(ROOT/'web'))
 fm = FileManager()
-processes: list
+processes: list[Process]
 data = AppData()
 assistant = Assistant()
 
@@ -39,20 +40,20 @@ def create_process(pr_name: str):
 
 @eel.expose
 def edit_process(pr_id: int, new_name: str):
-    proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
-    proc["name"] = new_name
+    proc = next(filter(lambda pr: pr.id == pr_id, processes))
+    proc.name = new_name
     fm.save_process(proc)
 
 @eel.expose
 def delete_process(pr_id: int):
-    proc = next(filter(lambda pr: pr["id"] == pr_id, processes))
+    proc = next(filter(lambda pr: pr.id == pr_id, processes))
     processes.remove(proc)
     fm.delete_process(pr_id)
 
 @eel.expose
 def set_option(option: int):
-    proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
-    proc["option"] = option
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    proc.option = option
     fm.save_process(proc)
 
 @eel.expose
@@ -61,11 +62,11 @@ def fetch_processes():
 
     for proc in processes:
         procs.append({
-            "id": proc["id"],
-            "name": proc["name"],
-            "avatar": str.upper(proc["name"][0]),
-            "created": proc["created"],
-            "option": proc["option"]
+            "id": proc.id,
+            "name": proc.name,
+            "avatar": str.upper(proc.name[0]),
+            "created": proc.created,
+            "option": proc.option
         })
 
     return procs
@@ -76,22 +77,21 @@ def select_process(pr_id: int):
 
 @eel.expose
 def send_message(text: str, time: str):
-    proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     msg = {
         "text": text,
         "sender": "user",
         "time": time
     }
-    proc["messages"].append(msg)
+    proc.messages.append(msg)
     assistant.answer(text, proc)
     fm.save_process(proc)
 
-
 @eel.expose
 def fetch_messages():
-    proc = next(filter(lambda pr: pr["id"] == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
 
-    return proc["messages"]
+    return proc.messages
 
 
 if __name__ == "__main__":

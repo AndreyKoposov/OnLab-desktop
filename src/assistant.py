@@ -1,26 +1,35 @@
 from enum import Enum
 from datetime import datetime
-from prompts import p_entities, p_stages, p_transitions
+from prompts import p_entities, p_stages, p_transitions, p_params
 from api_manager import ApiManager
+from process import Process
 
 
 class State(str, Enum):
     DEFAULT = "default"
     WAIT_TEXT = "wait_text"
+    CONFIRM = "confirm"
 
 class Assistant():
     def __init__(self) -> None:
         self.state: State = State.DEFAULT
-        self.proc: dict = {}
+        self.proc: Process
         self.api = ApiManager()
 
-    def answer(self, user_input: str, proc: dict):
+        self.temp_entities = []
+        self.temp_stages = []
+        self.temp_transitions = []
+        self.temp_params = {}
+
+    def answer(self, user_input: str, proc: Process):
         self.proc = proc
         match self.state:
             case State.DEFAULT:
                 self.__do_command(user_input)
             case State.WAIT_TEXT:
                 self.__check_text(user_input)
+            case State.CONFIRM:
+                self.__check_confirm(user_input)
 
     def __check_text(self, user_input: str):
         if len(user_input) < 30:
@@ -46,6 +55,22 @@ class Assistant():
             case _:
                 self.__unknown()
 
+    def __check_confirm(self, user_input: str):
+        user_input = user_input.lower().strip()
+
+        if user_input == "да":
+            self.proc.entities = self.temp_entities
+            self.proc.stages = self.temp_stages
+            self.proc.transitions = self.temp_transitions
+            self.proc.params = self.temp_params
+            self.state = State.DEFAULT
+            self.__answer("Структура создана")
+        elif user_input == "нет":
+            self.state = State.DEFAULT
+            self.__answer("Анализ отменен")
+        else:
+            self.__answer("Введите (да/нет)")
+
     def __help(self):
         answer = "Список команд:\n"\
                  "\t/help - список команд\n"\
@@ -64,7 +89,7 @@ class Assistant():
         pass
 
     def __clear(self):
-        self.proc["messages"] = []
+        self.proc.messages = []
         answer = "Чат очищен!"
         self.__answer(answer)
 
@@ -80,21 +105,72 @@ class Assistant():
             "sender": "assistant",
             "time": time
         }
-        self.proc["messages"].append(msg)
+        self.proc.messages.append(msg)
 
     def __start_analyze(self, desc: str):
         # Запрос у gigachat сущностей, этапов и переходов из текста
         # Сущности
         query = p_entities(desc)
-        entities = self.api.request(query, 'entities')
+        self.temp_entities = self.api.request(query, 'entities')
         # Этапы
         query = p_stages(desc)
-        stages = self.api.request(query, 'stages')
-        ## Переходы между этапами
-        query = p_transitions(desc, stages)
-        transitions = self.api.request(query, 'transitions')
+        self.temp_stages = self.api.request(query, 'stages')
+        # Переходы между этапами
+        query = p_transitions(desc, self.temp_stages)
+        self.temp_transitions = self.api.request(query, 'transitions')
 
         # Вывод результата
-        self.__answer("Основные сущности процесса:\n- " + "\n- ".join(entities))
-        self.__answer("Основные этапы процесса:\n- " + "\n- ".join(stages))
-        self.__answer("Переходы между этапами:\n- " + "\n- ".join(transitions))
+        self.__answer("Основные сущности процесса:\n- " + "\n- ".join(self.temp_entities))
+        self.__answer("Основные этапы процесса:\n- " + "\n- ".join(self.temp_stages))
+        self.__answer("Переходы между этапами:\n- " + "\n- ".join(self.temp_transitions))
+
+        # Вывод результата
+        query = p_params(desc, self.temp_stages)
+        self.temp_params = self.api.request(query, 'params')
+        self.__answer(self.__params_to_str(self.temp_params))
+
+        self.__answer("Создать на основании анализа структуру процесса? (да/нет)")
+        self.state = State.CONFIRM
+
+    def __params_to_str(self, stages_params: dict):
+        """Преобразует JSON в текст для пользователя"""
+        reply = ""
+
+        for item in stages_params.items():
+            reply += f"\n\nЭтап - {item[0]}"
+
+            reply += "\nВыходные параметры:"
+            for param in item[1]["main"]:
+                name = param["name"]
+                unit = param["unit"]
+                value = param["output_value"]
+                descr = param["description"]
+                reply += f"\n\t- {name} | {unit} ({value}) | {descr}"
+
+            reply += "\nУправляющие параметры:"
+            for param in item[1]["control"]:
+                name = param["name"]
+                unit = param["unit"]
+                value = param["input_value"]
+                descr = param["description"]
+                reply += f"\n\t- {name} | {unit} ({value}) | {descr}"
+
+            reply += "\nВходные параметры:"
+            for param in item[1]["input"]:
+                name = param["name"]
+                unit = param["unit"]
+                value = param["input_value"]
+                descr = param["description"]
+                reply += f"\n\t- {name} | {unit} ({value}) | {descr}"
+
+            reply += "\nОбеспечивающие параметры:"
+            for param in item[1]["resource"]:
+                name = param["name"]
+                unit = param["unit"]
+                value = param["expected_value"]
+                result = param["result"]
+                condition = param["condition"]
+                descr = param["description"]
+                reply += f"\n\t- {name} | {unit} ({condition} {value} => {result}) | {descr}"
+
+        return reply

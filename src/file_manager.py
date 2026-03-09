@@ -2,6 +2,7 @@ from pathlib import Path
 from json import load, dump
 from config import ROOT
 from os import makedirs
+from process import Process
 
 
 class FileManager():
@@ -12,39 +13,31 @@ class FileManager():
         if not Path.exists(self.work_dir):
             makedirs(self.work_dir)
 
-    def get_processes(self) -> list:
-        processes_info = []
+    def get_processes(self) -> list[Process]:
+        processes = list[Process]()
 
         for file in self.work_dir.iterdir():
             if file.is_dir():
                 info = self.__get_process(file)
-                processes_info.append(info)
+                proc = Process.deserialize(info)
+                processes.append(proc)
 
-        return processes_info
+        return processes
 
-    def create_process(self, pr_id: int, name: str, created: str) -> dict:
+    def create_process(self, pr_id: int, name: str, created: str) -> Process:
         pr_dir = self.work_dir/f"pr_{pr_id}"
         pr_dir.mkdir()
 
         pr_structure_file = pr_dir/"structure.onlab"
 
-        pr_structure = {
-            "id": pr_id,
-            "name": name,
-            "created": created,
-            "option": 1,
-
-            "entities": [],
-            "stages": [],
-            "transitions": [],
-            "params": [],
-            "messages": []
-        }
+        new_proc = Process(pr_id, name)
+        new_proc.created = created
+        pr_structure = Process.serialize(new_proc)
 
         with open(pr_structure_file, 'w', encoding='utf-8') as file:
             dump(pr_structure, file, indent=4)
 
-        return pr_structure
+        return new_proc
     
     def delete_process(self, pr_id: int):
         pr_dir = self.work_dir/f"pr_{pr_id}"
@@ -55,11 +48,14 @@ class FileManager():
                 raise SystemError("Directory in process directory!")
         pr_dir.rmdir()
 
-    def save_process(self, process):
-        pr_file = self.work_dir/f"pr_{process['id']}"/"structure.onlab"
-
+    def save_process(self, process: Process):
+        pr_file = self.work_dir/f"pr_{process.id}"/"structure.onlab"
+        pr_dict = Process.serialize(process)
         with open(pr_file, 'w', encoding='utf-8') as file:
-            dump(process, file, indent=4)
+            dump(pr_dict, file, indent=4)
+
+        rdf_file = self.work_dir/f"pr_{process.id}"/"rdf.xml"
+        process.rdf.to_xml(str(rdf_file))
 
     def load_app_data(self):
         with open(ROOT/"data.json", 'r', encoding='utf-8') as file:
