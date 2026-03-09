@@ -126,3 +126,13 @@ class RdfModel():
             dot_graph.render(file_name, format="png", cleanup=True)
         except ValueError as error:
             print(f"{error}")
+
+    def validate_xml(self, content: str) -> bool:
+        g_temp = Graph()
+        try:
+            g_temp.parse(data=content, format="xml")
+            if len(g_temp) == 0:
+                return False
+            return True
+        except Exception:
+            return False

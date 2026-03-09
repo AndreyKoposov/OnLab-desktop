@@ -57,7 +57,7 @@ function initXMLviewer() {
     // ========== МЕСТО ДЛЯ ВАШЕЙ ЛОГИКИ PYTHON ==========
     // Раскомментируйте после подключения Eel
 
-    /*
+    
     // Загрузка XML документа
     async function loadXmlDocument() {
         try {
@@ -148,85 +148,6 @@ function initXMLviewer() {
             showError('Не удалось сгенерировать граф');
         }
     }
-    */
-
-    // ========== ВРЕМЕННАЯ ЛОГИКА ДЛЯ ТЕСТИРОВАНИЯ ==========
-    
-    // Заглушка загрузки
-    async function loadXmlDocument() {
-        setTimeout(() => {
-            const sampleXml = `<?xml version="1.0" encoding="UTF-8"?>
-<ontology>
-    <process id="p1">
-        <name>Закупка сырья</name>
-        <description>Процесс закупки необходимых материалов</description>
-        <inputs>
-            <input>Потребность в материалах</input>
-            <input>Список поставщиков</input>
-        </inputs>
-        <outputs>
-            <output>Закупленные материалы</output>
-            <output>Договоры поставки</output>
-        </outputs>
-        <roles>
-            <role>Менеджер по закупкам</role>
-            <role>Складской работник</role>
-        </roles>
-    </process>
-    
-    <process id="p2">
-        <name>Производство деталей</name>
-        <description>Основной производственный процесс</description>
-        <inputs>
-            <input>Сырьё и материалы</input>
-            <input>Техническая документация</input>
-        </inputs>
-        <outputs>
-            <output>Готовые детали</output>
-        </outputs>
-        <roles>
-            <role>Оператор станка</role>
-            <role>Технолог</role>
-        </roles>
-    </process>
-    
-    <relations>
-        <relation from="p1" to="p2" type="supplies"/>
-    </relations>
-</ontology>`;
-            
-            xmlState.currentContent = sampleXml;
-            xmlState.originalContent = sampleXml;
-            xmlTextarea.value = sampleXml;
-            
-            updateLineNumbers();
-            updateStats();
-            checkUnsavedChanges();
-            
-            showLoading(false);
-        }, 500);
-    }
-    
-    // Заглушка сохранения
-    async function saveChanges() {
-        showLoading(true);
-        setTimeout(() => {
-            xmlState.originalContent = xmlState.currentContent;
-            checkUnsavedChanges();
-            showLoading(false);
-            showMessage('Документ сохранён (тест)');
-        }, 500);
-    }
-    
-    // Заглушка графа
-    async function downloadAsGraph() {
-        showLoading(true);
-        setTimeout(() => {
-            showLoading(false);
-            showMessage('Граф сгенерирован (тест)');
-        }, 1000);
-    }
-    // ========== КОНЕЦ ТЕСТОВОЙ ЛОГИКИ ==========
 
     // ========== UI ФУНКЦИИ ==========
     
@@ -238,7 +159,7 @@ function initXMLviewer() {
         checkUnsavedChanges();
         
         // Здесь можно добавить валидацию с debounce
-        // validateXml(xmlState.currentContent);
+        validateXml(xmlState.currentContent);
     }
 
     // Синхронизация скролла номеров строк

@@ -1,3 +1,4 @@
+import copy
 import eel
 from file_manager import FileManager
 from config import ROOT
@@ -33,6 +34,7 @@ def ID():
 
     return id_to_return
 
+# Процессы ============================
 @eel.expose
 def create_process(pr_name: str):
     proc = fm.create_process(ID(), pr_name, "07.03.2026")
@@ -75,6 +77,7 @@ def fetch_processes():
 def select_process(pr_id: int):
     data.cur_id = pr_id
 
+# Ассистент ============================
 @eel.expose
 def send_message(text: str, time: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
@@ -93,6 +96,32 @@ def fetch_messages():
 
     return proc.messages
 
+# XML ============================
+@eel.expose
+def get_xml_document():
+    return {
+        "content": fm.load_xml(data.cur_id),
+        "isValid": True,
+        "filename": "rdf.xml"
+    }
+
+@eel.expose
+def save_xml_document(content: str):
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    isValid = proc.validate_xml(content)
+    if isValid:
+        fm.save_xml(data.cur_id, content)
+
+    return {
+        "success": isValid,
+        "isValid": isValid,
+        "error": "XML is invalid!"
+    }
+
+@eel.expose
+def validate_xml(content: str):
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    return {"isValid": proc.validate_xml(content)}
 
 if __name__ == "__main__":
     processes = fm.get_processes()

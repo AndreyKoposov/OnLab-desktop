@@ -16,6 +16,9 @@ class Process():
 
         self.__rdf = RdfModel(self.__id)
 
+    def validate_xml(self, content: str) -> bool:
+        return self.__rdf.validate_xml(content)
+
     def get_id(self):
         return self.__id
 

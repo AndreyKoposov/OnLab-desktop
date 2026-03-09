@@ -57,6 +57,16 @@ class FileManager():
         rdf_file = self.work_dir/f"pr_{process.id}"/"rdf.xml"
         process.rdf.to_xml(str(rdf_file))
 
+    def load_xml(self, pr_id: int) -> str:
+        pr_file = self.work_dir/f"pr_{pr_id}"/"rdf.xml"
+        with open(pr_file, 'r', encoding='utf-8') as file:
+            return file.read()
+
+    def save_xml(self, pr_id: int, content: str):
+        pr_file = self.work_dir/f"pr_{pr_id}"/"rdf.xml"
+        with open(pr_file, 'w', encoding='utf-8') as file:
+            file.write(content)
+
     def load_app_data(self):
         with open(ROOT/"data.json", 'r', encoding='utf-8') as file:
             return load(file)
