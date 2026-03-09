@@ -54,7 +54,30 @@ class Process():
 
     def set_params(self, params: dict):
         self.__params = params
-        self.__rdf.add_params([])
+
+        parameters = list[tuple[str, str, tuple[str, str], dict[str, str]]]()
+        for item in params.items():
+            stage = item[0]
+            for param_type in item[1].keys():
+                for param in item[1][param_type]:
+                    name = param["name"]
+                    unit = param["unit"]
+                    new_param = (name, unit)
+                    attrs = dict[str, str]()
+
+                    if param_type == "main":
+                        attrs["output_value"] = param["output_value"]
+                    elif param_type in ("control" ,"input"):
+                        attrs["input_value"] = param["input_value"]
+                    else:
+                        attrs["expected_value"] = param["expected_value"]
+                        attrs["result"] = param["result"]
+                        attrs["condition"] = param["condition"]
+
+                    parameters.append((stage, param_type, new_param, attrs))
+
+
+        self.__rdf.add_params(parameters)
 
     @staticmethod
     def serialize(proc) -> dict:
