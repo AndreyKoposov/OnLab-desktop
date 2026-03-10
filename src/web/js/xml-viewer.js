@@ -20,7 +20,7 @@ function initXMLviewer() {
     const xmlLineNumbers = document.getElementById('xmlLineNumbers');
     const xmlLoading = document.getElementById('xmlLoading');
     const xmlUnsavedBadge = document.getElementById('xmlUnsavedBadge');
-    const xmlFilename = document.getElementById('xmlFilename');
+    //const xmlFilename = document.getElementById('xmlFilename');
     const xmlValidationStatus = document.getElementById('xmlValidationStatus');
     const xmlValidationDot = document.getElementById('xmlValidationDot');
     const xmlLineCount = document.getElementById('xmlLineCount');
@@ -72,7 +72,7 @@ function initXMLviewer() {
             
             // Обновляем UI
             xmlTextarea.value = xmlState.currentContent;
-            xmlFilename.textContent = xmlState.filename;
+            //xmlFilename.textContent = xmlState.filename;
             updateLineNumbers();
             updateValidationStatus(xmlState.isValid);
             updateStats();
@@ -260,7 +260,7 @@ function initXMLviewer() {
             xmlState.filename = filename || 'document.xml';
             
             xmlTextarea.value = content;
-            xmlFilename.textContent = xmlState.filename;
+            //xmlFilename.textContent = xmlState.filename;
             updateLineNumbers();
             updateStats();
             checkUnsavedChanges();

@@ -123,7 +123,41 @@ def validate_xml(content: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     return {"isValid": proc.validate_xml(content)}
 
+@eel.expose
+def get_table_data():
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    params = proc.params
+
+    table = []
+    index = 0
+    for item in params.items():
+        stage = item[0]
+        for param_type in item[1].keys():
+            for param in item[1][param_type]:
+                entry = {}
+
+                entry["param"] = param["name"]
+                entry["feature"] = f"feature_{index}"
+                entry["transformation"] = param["unit"]
+                #attrs = dict[str, str]()
+
+                #if param_type == "main":
+                #    attrs["output_value"] = param["output_value"]
+                #elif param_type in ("control" ,"input"):
+                #    attrs["input_value"] = param["input_value"]
+                #else:
+                #    attrs["expected_value"] = param["expected_value"]
+                #    attrs["result"] = param["result"]
+                #    attrs["condition"] = param["condition"]
+
+                table.append(entry)
+                index += 1
+
+    return table
+
 
 if __name__ == "__main__":
     processes = fm.get_processes()
+    for s, p, o in processes[0].rdf.g:
+        print(s, p, o)
     eel.start('index.html', size=(3000, 2000), port=8100)

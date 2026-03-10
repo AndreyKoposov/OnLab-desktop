@@ -59,7 +59,6 @@ async function initGUI() {
     <div class="xml-header">
         <h3>
             📄 XML документ
-            <span id="xmlFilename">process_ontology.xml</span>
         </h3>
         <div class="xml-unsaved-badge" id="xmlUnsavedBadge">✎ Несохранённые изменения</div>
     </div>
@@ -124,6 +123,59 @@ async function initGUI() {
         `;
         if (btnNumber == 4)
             contentArea.innerHTML = `
+        <!-- Таблица для просмотра данных (вставьте это внутрь .content-area) -->
+<div class="table-container" id="tableContainer">
+    <!-- Заголовок -->
+    <div class="table-header">
+        <h3>
+            📊 Таблица данных
+        </h3>
+        <div class="table-count-badge" id="tableRowCount">0 записей</div>
+    </div>
+    
+    <!-- Область таблицы -->
+    <div class="table-wrapper" id="tableWrapper">
+        <!-- Индикатор загрузки -->
+        <div class="table-loading" id="tableLoading" style="display: none;">
+            <div class="table-loading-spinner"></div>
+        </div>
+        
+        <!-- Таблица -->
+        <table class="data-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Параметр</th>
+                    <th>Признак модели</th>
+                    <th>Трансформация</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Данные будут вставлены через JavaScript -->
+            </tbody>
+        </table>
+        
+        <!-- Пустое состояние -->
+        <div class="table-empty" id="tableEmpty" style="display: none;">
+            <div class="table-empty-icon">📭</div>
+            <div>Нет данных для отображения</div>
+            <div style="font-size: 13px; color: #cbd5e1;">Загрузите данные через Python</div>
+        </div>
+    </div>
+    
+    <!-- Панель инструментов -->
+    <div class="table-toolbar">
+        
+        
+        <div class="table-toolbar-left">
+            <button class="table-btn" id="tableExportBtn" title="Скачать в Excel формате">
+                📥 Скачать Excel
+            </button>
+            <button class="table-btn" id="tableRefreshBtn" title="Обновить данные">
+                🔄 Обновить
+            </button>
+        </div>
+    </div>
+</div>
         `;
         if (btnNumber == 5)
             contentArea.innerHTML = `
@@ -422,6 +474,7 @@ async function initGUI() {
         set_option(4);
         setActiveButton(btn4);
         updateContent(4);
+        startTable()
     });
 
     btn5.addEventListener('click', function(e) {
