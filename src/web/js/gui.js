@@ -44,9 +44,7 @@ async function initGUI() {
                     <button class="command-btn" data-command="/help">/help</button>
                     <button class="command-btn" data-command="/analyze">/analyze</button>
                     <button class="command-btn" data-command="/ontology">/ontology</button>
-                    <button class="command-btn" data-command="/processes">/processes</button>
                     <button class="command-btn" data-command="/clear">/clear</button>
-                    <button class="command-btn" data-command="/export">/export</button>
                 </div>
             </div>
         </div>
@@ -184,7 +182,7 @@ async function initGUI() {
     <!-- Заголовок -->
     <div class="table-header">
         <h3>
-            📊 Таблица данных
+            📊 Базовая предиктиваня модель
         </h3>
         <div class="table-count-badge" id="tableRowCount">0 записей</div>
     </div>
@@ -257,8 +255,9 @@ async function initGUI() {
             pr_avatar = infos[i]["avatar"]
             pr_created = infos[i]["created"]
             pr_option = infos[i]["option"]
+            pr_count = infos[i]["count"]
 
-            processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: '24 элемента', meta: pr_created, option: pr_option })
+            processes.push({ id: pr_id, name: pr_name, avatar: pr_avatar, badge: pr_count + ' элемента', meta: pr_created, option: pr_option })
         }
     }
     // Функция обновления счетчика процессов

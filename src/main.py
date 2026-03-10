@@ -68,7 +68,8 @@ def fetch_processes():
             "name": proc.name,
             "avatar": str.upper(proc.name[0]),
             "created": proc.created,
-            "option": proc.option
+            "option": proc.option,
+            "count": proc.count_elements()
         })
 
     return procs
@@ -132,13 +133,20 @@ def get_table_data():
     table = []
     index = 0
     for item in params.items():
-        stage = item[0]
         for param_type in item[1].keys():
             for param in item[1][param_type]:
                 entry = {}
                 entry["param"] = param["name"]
                 entry["feature"] = f"feature_{index}"
-                entry["transformation"] = param["unit"]
+                entry["transformation"] = "one-hot encoding" if param["unit"] == '-' else "Стандартизация (z-score)"
+
+                if param_type == "resource":
+                    branch_entry = {}
+                    branch_entry["param"] = f"Точка бифуркации: {param['name']}"
+                    branch_entry["feature"] = "branching_flag"
+                    branch_entry["transformation"] = "Условная ветвь"
+                    table.append(branch_entry)
+
 
                 table.append(entry)
                 index += 1
@@ -149,16 +157,18 @@ def get_table_data():
 @eel.expose
 def get_process_stages():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
-
     result = []
     stages = proc.stages
     for stage in stages:
-        entry = {
-            "id": stages.index(stage), 
-            "name": stage,
-            "description": '...',
-            "paramCount": proc.get_stage_params_count(stage) }
-        result.append(entry)
+        try:
+            entry = {
+                "id": stages.index(stage), 
+                "name": stage,
+                "description": '...',
+                "paramCount": proc.get_stage_params_count(stage) }
+            result.append(entry)
+        except KeyError as err:
+            pass
     return result
 
 @eel.expose
@@ -177,22 +187,24 @@ def get_stage_parameters(stage_id: int):
     index = 0
     for param_type in params.keys():
         for param in params[param_type]:
-            entry = {}
-            entry["id"] = index
-            entry["name"] = param["name"]
-            entry["type"] = "int" if param["unit"] != '-' else "string"
+            try:
+                entry = {}
+                entry["id"] = index
+                entry["name"] = param["name"]
+                entry["type"] = "int" if param["unit"] != '-' else "string"
 
-            if param_type == "main":
-                result["main"].append(entry)
-            elif param_type == "control":
-                result["control"].append(entry)
-            elif param_type == "input":
-                result["input"].append(entry)
-            else:
-                result["resource"].append(entry)
+                if param_type == "main":
+                    result["main"].append(entry)
+                elif param_type == "control":
+                    result["control"].append(entry)
+                elif param_type == "input":
+                    result["input"].append(entry)
+                else:
+                    result["resource"].append(entry)
 
-            index += 1
-
+                index += 1
+            except KeyError:
+                pass
     return result
 
 @eel.expose

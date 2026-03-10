@@ -13,7 +13,7 @@ function startStructure() {
         isLoading: false,
         categories: [
             { id: 'input', name: 'Входные', icon: '📥' },
-            { id: 'control', name: 'Управляющие', icon: '🎮' },
+            { id: 'control', name: 'Управляющие', icon: '⚙️' },
             { id: 'resource', name: 'Ресурсные', icon: '📦' },
             { id: 'main', name: 'Выходные', icon: '📤' }
         ]
@@ -163,7 +163,6 @@ function startStructure() {
                     <div class="stage-name">${escapeHtml(stage.name)}</div>
                     <div class="stage-meta">
                         <span>📊 ${stage.paramCount || 0} параметров</span>
-                        <span>⏱️ ${stage.duration || '—'}</span>
                     </div>
                 </div>
             `;
@@ -299,7 +298,7 @@ function startStructure() {
                         ${info.value !== undefined ? `
                             <div class="info-row">
                                 <span class="info-label">Значение:</span>
-                                <span class="info-value">${info.value} ${info.unit || ''}</span>
+                                <span class="info-value">${info.value}, ${info.unit || ''}</span>
                             </div>
                         ` : ''}
                     </div>

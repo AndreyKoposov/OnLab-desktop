@@ -81,7 +81,8 @@ class Assistant():
         self.__answer(answer)
 
     def __analyze(self):
-        answer = "Пожалуйста, введите текстовое описание процесса и я попробую разобраться!"
+        answer = "Пожалуйста, введите текстовое описание процесса и я попробую разобраться. \
+        \n!!! Анализ может занять до 30 секунд !!!"
         self.__answer(answer)
         self.state = State.WAIT_TEXT
 
@@ -115,9 +116,15 @@ class Assistant():
         # Этапы
         query = p_stages(desc)
         self.temp_stages = self.api.request(query, 'stages')
+
+        # Upper case first char
+        self.temp_entities = list(map(str.capitalize, self.temp_entities))
+        self.temp_stages = list(map(str.capitalize, self.temp_stages))
+
         # Переходы между этапами
         query = p_transitions(desc, self.temp_stages)
         self.temp_transitions = self.api.request(query, 'transitions')
+
 
         # Вывод результата
         self.__answer("Основные сущности процесса:\n- " + "\n- ".join(self.temp_entities))

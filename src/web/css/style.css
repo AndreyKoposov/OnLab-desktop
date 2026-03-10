@@ -31,7 +31,7 @@ body {
 
 /* Левая колонка — список процессов (как список чатов) */
 .process-list {
-    width: 300px;
+    width: 350px;
     background: #f8fafd;
     border-right: 1px solid #e2e8f0;
     display: flex;

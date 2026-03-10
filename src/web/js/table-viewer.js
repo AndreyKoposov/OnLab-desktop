@@ -192,11 +192,11 @@ function startTable() {
     
     // Обновление статистики
     function updateStats() {
-        //const totalRows = tableState.data.length;
-        //const displayedRows = tableState.filteredData.length;
-        //
-        //tableRowCount.textContent = `${totalRows} записей`;
-        //
+        const totalRows = tableState.data.length;
+        const displayedRows = tableState.filteredData.length;
+        
+        tableRowCount.textContent = `${totalRows} записей`;
+        
         //if (totalRows === displayedRows) {
         //    tableStats.textContent = `загружено ${totalRows} строк`;
         //} else {

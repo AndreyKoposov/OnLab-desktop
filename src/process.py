@@ -90,6 +90,13 @@ class Process():
                 count += 1
         return count
 
+    def count_elements(self) -> int:
+        params_count = 0
+        for stage in self.__stages:
+            params_count += self.get_stage_params_count(stage)
+
+        return len(self.__entities) + len(self.__stages) + params_count
+
     @staticmethod
     def serialize(proc) -> dict:
         res = proc.__dict__.copy()

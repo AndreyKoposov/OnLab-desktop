@@ -1,7 +1,7 @@
 function startChecker() {
     var url = "http://90.156.155.241/ping"
     // Создание проверщика
-    const connectionChecker = getConnectionChecker(url, 10000);
+    const connectionChecker = getConnectionChecker(url, 20000);
     // Устанавливаем обработчики событий
     connectionChecker.onConnectionLost(() => {
         setConnectionStatus(false) // При потере соединения
