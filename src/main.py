@@ -248,8 +248,29 @@ def get_param_info(stage_id: int, name: str, category: str):
 
     return info
 
+@eel.expose
+def get_graph_data():
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    triplets = []
+    for s, p, o in proc.rdf.g:
+        triplets.append({
+            "node1": replace_rdf(s, proc.id),
+            "edge": replace_rdf(p, proc.id),
+            "node2": replace_rdf(o, proc.id)
+        })
+    return triplets
+
+def replace_rdf(el: str, pr_id: int) -> str:
+    el = el.replace(f"http://{pr_id}/", "")
+    el = el.replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "")
+    el = el.replace("http://www.w3.org/2001/XMLSchema#", "")
+    el = el.replace("http://www.w3.org/2000/01/rdf-schema#", "")
+    el = el.replace("http://www.w3.org/2002/07/owl#", "")
+
+    return el
+
 if __name__ == "__main__":
     processes = fm.get_processes()
-    #for s, p, o in processes[0].rdf.g:
-    #    print(s, p, o)
+    for s1, p1, o1 in processes[1].rdf.g:
+        print(s1, p1, o1)
     eel.start('index.html', size=(3000, 2000), port=8100)
