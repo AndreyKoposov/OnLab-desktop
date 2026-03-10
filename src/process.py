@@ -82,6 +82,14 @@ class Process():
 
         self.__rdf.add_params(parameters)
 
+    def get_stage_params_count(self, stage_name: str) -> int:
+        params = self.__params[stage_name]
+        count = 0
+        for param_type in params.keys():
+            for _ in params[param_type]:
+                count += 1
+        return count
+
     @staticmethod
     def serialize(proc) -> dict:
         res = proc.__dict__.copy()

@@ -15,7 +15,7 @@ function startStructure() {
             { id: 'input', name: 'Входные', icon: '📥' },
             { id: 'control', name: 'Управляющие', icon: '🎮' },
             { id: 'resource', name: 'Ресурсные', icon: '📦' },
-            { id: 'output', name: 'Выходные', icon: '📤' }
+            { id: 'main', name: 'Выходные', icon: '📤' }
         ]
     };
 
@@ -42,7 +42,7 @@ function startStructure() {
     // ========== МЕСТО ДЛЯ ВАШЕЙ ЛОГИКИ PYTHON ==========
     // Раскомментируйте после подключения Eel
 
-    /*
+    
     // Загрузка этапов процесса
     async function loadStages(processId) {
         try {
@@ -50,7 +50,7 @@ function startStructure() {
             
             // Вызов Python функции для получения этапов
             // Ожидаемый формат: [{ id: 1, name: 'Этап 1', description: '...', paramCount: 5 }, ...]
-            const stages = await eel.get_process_stages(processId)();
+            const stages = await eel.get_process_stages()();
             
             structureState.stages = stages || [];
             renderStages();
@@ -117,7 +117,7 @@ function startStructure() {
             //   constraints: '...',
             //   source: 'ГОСТ ...'
             // }
-            const info = await eel.get_parameter_info(parameterId, category)();
+            const info = await eel.get_param_info(structureState.currentStageId, parameterId, category)();
             
             structureState.currentParameterId = parameterId;
             renderParameterInfo(info);
@@ -137,140 +137,6 @@ function startStructure() {
             structureName.textContent = `процесс #${processId}`;
         }
     }
-    */
-
-    // ========== ВРЕМЕННАЯ ЛОГИКА ДЛЯ ТЕСТИРОВАНИЯ ==========
-    
-    // Заглушка загрузки этапов
-    async function loadStages(processId) {
-        showLoading(true);
-        
-        setTimeout(() => {
-            const mockStages = [
-                { 
-                    id: 1, 
-                    name: 'Подготовка сырья', 
-                    description: 'Подготовка и предварительная обработка материалов',
-                    paramCount: 8,
-                    duration: '2-3 часа'
-                },
-                { 
-                    id: 2, 
-                    name: 'Смешивание компонентов', 
-                    description: 'Смешивание в заданных пропорциях',
-                    paramCount: 12,
-                    duration: '1 час'
-                },
-                { 
-                    id: 3, 
-                    name: 'Термическая обработка', 
-                    description: 'Нагрев до заданной температуры',
-                    paramCount: 15,
-                    duration: '4 часа'
-                },
-                { 
-                    id: 4, 
-                    name: 'Охлаждение', 
-                    description: 'Контролируемое охлаждение',
-                    paramCount: 6,
-                    duration: '2 часа'
-                },
-                { 
-                    id: 5, 
-                    name: 'Контроль качества', 
-                    description: 'Проверка соответствия спецификациям',
-                    paramCount: 10,
-                    duration: '1 час'
-                }
-            ];
-            
-            structureState.stages = mockStages;
-            renderStages();
-            
-            // Выбираем первый этап
-            if (mockStages.length > 0) {
-                selectStage(mockStages[0].id);
-            }
-            
-            //structureName.textContent = processId ? `процесс #${processId}` : 'производственный процесс';
-            updateStats();
-            showLoading(false);
-        }, 500);
-    }
-    
-    // Заглушка загрузки параметров этапа
-    async function loadStageParameters(stageId) {
-        showLoading(true);
-        
-        setTimeout(() => {
-            const mockParameters = {
-                input: [
-                    { id: 101, name: 'Сырьё основное', type: 'material', measure: 'кг', description: 'Основной материал' },
-                    { id: 102, name: 'Сырьё вспомогательное', type: 'material', measure: 'кг', description: 'Добавки' },
-                    { id: 103, name: 'Вода', type: 'resource', measure: 'л', description: 'Техническая вода' }
-                ],
-                control: [
-                    { id: 201, name: 'Температура', type: 'continuous', measure: '°C', description: 'Рабочая температура', min: 20, max: 80 },
-                    { id: 202, name: 'Давление', type: 'continuous', measure: 'атм', description: 'Давление в системе' },
-                    { id: 203, name: 'Скорость подачи', type: 'continuous', measure: 'кг/ч', description: 'Скорость подачи материала' }
-                ],
-                resource: [
-                    { id: 301, name: 'Электроэнергия', type: 'resource', measure: 'кВт·ч', description: 'Потребляемая мощность' },
-                    { id: 302, name: 'Персонал', type: 'human', measure: 'чел.', description: 'Количество операторов' },
-                    { id: 303, name: 'Оборудование', type: 'equipment', measure: 'ед.', description: 'Единицы оборудования' }
-                ],
-                output: [
-                    { id: 401, name: 'Полуфабрикат', type: 'product', measure: 'кг', description: 'Выход продукта' },
-                    { id: 402, name: 'Отходы', type: 'waste', measure: 'кг', description: 'Количество отходов' }
-                ]
-            };
-            
-            structureState.parameters = mockParameters;
-            structureState.currentStageId = stageId;
-            
-            renderParameters();
-            updateStats();
-            showLoading(false);
-        }, 400);
-    }
-    
-    // Заглушка загрузки информации о параметре
-    async function loadParameterInfo(parameterId, category) {
-        showLoading(true);
-        
-        setTimeout(() => {
-            const mockInfo = {
-                id: parameterId,
-                name: parameterId === 101 ? 'Сырьё основное' : 
-                      parameterId === 201 ? 'Температура' :
-                      parameterId === 301 ? 'Электроэнергия' :
-                      parameterId === 401 ? 'Полуфабрикат' : 'Параметр',
-                measure: parameterId === 101 ? 'кг' :
-                         parameterId === 201 ? '°C' :
-                         parameterId === 301 ? 'кВт·ч' :
-                         parameterId === 401 ? 'кг' : 'ед.',
-                description: 'Подробное описание параметра. Здесь может быть указана дополнительная информация о способах измерения, требованиях к точности, допустимых отклонениях и т.д.',
-                type: category === 'input' ? 'Материальный' :
-                      category === 'control' ? 'Управляющий' :
-                      category === 'resource' ? 'Ресурсный' : 'Выходной',
-                min: parameterId === 201 ? 20 : null,
-                max: parameterId === 201 ? 80 : null,
-                unit: parameterId === 101 ? 'килограмм' :
-                      parameterId === 201 ? 'градус Цельсия' :
-                      parameterId === 301 ? 'киловатт-час' : '',
-                constraints: 'Допустимое отклонение: ±5%',
-                source: 'Технологический регламент',
-                frequency: 'Каждые 30 минут',
-                method: 'Прямое измерение'
-            };
-            
-            structureState.currentParameterId = parameterId;
-            renderParameterInfo(mockInfo);
-            
-            showLoading(false);
-        }, 300);
-    }
-    // ========== КОНЕЦ ТЕСТОВОЙ ЛОГИКИ ==========
 
     // ========== UI ФУНКЦИИ ==========
     
@@ -356,6 +222,7 @@ function startStructure() {
                 html += `
                     <div class="parameter-item ${isSelected ? 'selected' : ''}" 
                          data-param-id="${param.id}" 
+                         data-param-name="${param.name}"
                          data-category="${category.id}">
                         <div class="parameter-name">${escapeHtml(param.name)}</div>
                         <div class="parameter-type">
@@ -424,21 +291,15 @@ function startStructure() {
                 </div>
         `;
         
-        if (info.min !== undefined || info.max !== undefined) {
+        if (info.value !== undefined) {
             html += `
                 <div class="info-section">
                     <div class="info-section-title">Диапазон значений</div>
                     <div class="info-grid">
-                        ${info.min !== undefined ? `
+                        ${info.value !== undefined ? `
                             <div class="info-row">
-                                <span class="info-label">Минимум:</span>
-                                <span class="info-value">${info.min} ${info.unit || ''}</span>
-                            </div>
-                        ` : ''}
-                        ${info.max !== undefined ? `
-                            <div class="info-row">
-                                <span class="info-label">Максимум:</span>
-                                <span class="info-value">${info.max} ${info.unit || ''}</span>
+                                <span class="info-label">Значение:</span>
+                                <span class="info-value">${info.value} ${info.unit || ''}</span>
                             </div>
                         ` : ''}
                     </div>
@@ -455,7 +316,7 @@ function startStructure() {
             </div>
         `;
         
-        if (info.constraints || info.source || info.frequency || info.method) {
+        if (info.constraints || info.source || info.condition || info.result) {
             html += `
                 <div class="info-section">
                     <div class="info-section-title">Дополнительно</div>
@@ -480,20 +341,20 @@ function startStructure() {
                 `;
             }
             
-            if (info.frequency) {
+            if (info.condition) {
                 html += `
                     <div class="info-row">
-                        <span class="info-label">Периодичность:</span>
-                        <span class="info-value">${escapeHtml(info.frequency)}</span>
+                        <span class="info-label">Условие бифуркации:</span>
+                        <span class="info-value">${escapeHtml(info.condition)}</span>
                     </div>
                 `;
             }
             
-            if (info.method) {
+            if (info.result) {
                 html += `
                     <div class="info-row">
-                        <span class="info-label">Метод:</span>
-                        <span class="info-value">${escapeHtml(info.method)}</span>
+                        <span class="info-label">Последствия бифуркации:</span>
+                        <span class="info-value">${escapeHtml(info.result)}</span>
                     </div>
                 `;
             }
@@ -534,13 +395,21 @@ function startStructure() {
         
         structureState.currentParameterId = paramId;
         
+        var paramName = ""
+        // Find param name
+        document.querySelectorAll('.parameter-item').forEach(item => {
+            if (parseInt(item.dataset.paramId) === paramId) {
+                console.log(item.dataset.paramName);
+                paramName = item.dataset.paramName;
+            }
+        });
         // Подсвечиваем выбранный параметр
         document.querySelectorAll('.parameter-item').forEach(item => {
             item.classList.toggle('selected', parseInt(item.dataset.paramId) === paramId);
         });
         
         // Загружаем информацию о параметре
-        loadParameterInfo(paramId, category);
+        loadParameterInfo(paramName, category);
     }
     
     // Очистка параметров

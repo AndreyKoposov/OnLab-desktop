@@ -123,6 +123,7 @@ def validate_xml(content: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     return {"isValid": proc.validate_xml(content)}
 
+# TABLE ============================
 @eel.expose
 def get_table_data():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
@@ -135,29 +136,108 @@ def get_table_data():
         for param_type in item[1].keys():
             for param in item[1][param_type]:
                 entry = {}
-
                 entry["param"] = param["name"]
                 entry["feature"] = f"feature_{index}"
                 entry["transformation"] = param["unit"]
-                #attrs = dict[str, str]()
-
-                #if param_type == "main":
-                #    attrs["output_value"] = param["output_value"]
-                #elif param_type in ("control" ,"input"):
-                #    attrs["input_value"] = param["input_value"]
-                #else:
-                #    attrs["expected_value"] = param["expected_value"]
-                #    attrs["result"] = param["result"]
-                #    attrs["condition"] = param["condition"]
 
                 table.append(entry)
                 index += 1
 
     return table
 
+# STRUCTURE ============================
+@eel.expose
+def get_process_stages():
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+
+    result = []
+    stages = proc.stages
+    for stage in stages:
+        entry = {
+            "id": stages.index(stage), 
+            "name": stage,
+            "description": '...',
+            "paramCount": proc.get_stage_params_count(stage) }
+        result.append(entry)
+    return result
+
+@eel.expose
+def get_stage_parameters(stage_id: int):
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    stage = proc.stages[stage_id]
+    params = proc.params[stage]
+
+    result = {
+        "input": [],
+        "control": [],
+        "resource": [],
+        "main": []
+
+    }
+    index = 0
+    for param_type in params.keys():
+        for param in params[param_type]:
+            entry = {}
+            entry["id"] = index
+            entry["name"] = param["name"]
+            entry["type"] = "int" if param["unit"] != '-' else "string"
+
+            if param_type == "main":
+                result["main"].append(entry)
+            elif param_type == "control":
+                result["control"].append(entry)
+            elif param_type == "input":
+                result["input"].append(entry)
+            else:
+                result["resource"].append(entry)
+
+            index += 1
+
+    return result
+
+@eel.expose
+def get_param_info(stage_id: int, name: str, category: str):
+    info = {
+        "id": 0,
+        "name": name,
+        "measure": '°C',
+        "description": 'Описание параметра',
+        "type": 'continuous',
+        "value": 0,
+        "unit": 'градус Цельсия',
+        "constraints": '',
+        "source": 'ГОСТ 1234.56'
+    }
+
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    stage = proc.stages[stage_id]
+    params = proc.params[stage][category]
+    for param in params:
+        if param["name"] == name:
+            info["measure"] = param["unit"]
+            info["unit"] = param["unit"]
+            info["description"] = param["description"]
+            info["type"] = "material" if param["unit"] == "-" else "continous"
+
+            if category == "main":
+                info["constraints"] = param["output_value"]
+                info["value"] = "" if param["unit"] == "-" else param["output_value"]
+            elif category == "control":
+                info["constraints"] = param["input_value"]
+                info["value"] = "" if param["unit"] == "-" else param["input_value"]
+            elif category == "resource":
+                info["constraints"] = param["expected_value"]
+                info["condition"] = param["condition"]
+                info["result"] = param["result"]
+                info["value"] = "" if param["unit"] == "-" else param["expected_value"]
+            else:
+                info["constraints"] = param["input_value"]
+                info["value"] = "" if param["unit"] == "-" else param["input_value"]
+
+    return info
 
 if __name__ == "__main__":
     processes = fm.get_processes()
-    for s, p, o in processes[0].rdf.g:
-        print(s, p, o)
+    #for s, p, o in processes[0].rdf.g:
+    #    print(s, p, o)
     eel.start('index.html', size=(3000, 2000), port=8100)
