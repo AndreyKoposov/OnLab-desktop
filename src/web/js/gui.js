@@ -231,7 +231,7 @@ async function initGUI() {
     </div>
 </div>
         `;
-        if (btnNumber == 5)
+        if (btnNumber == 5 || btnNumber == 6)
             contentArea.innerHTML = `
         <!-- Просмотр графа (вставьте это внутрь .content-area) -->
 <div class="graph-container" id="graphContainer">
@@ -274,9 +274,6 @@ async function initGUI() {
         </div>
     </div>
 </div>
-        `;
-        if (btnNumber == 6)
-            contentArea.innerHTML = `
         `;
     }
 
@@ -591,6 +588,7 @@ async function initGUI() {
         set_option(6);
         setActiveButton(btn6);
         updateContent(6);
+        startGraph(true)
     });
 
     // Сразу нажимаем на чат

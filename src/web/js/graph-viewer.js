@@ -3,7 +3,7 @@
  * Входные данные: [{node1, edge, node2}, ...]
  */
 
-function startGraph () {
+function startGraph (bifur = false) {
     // Состояние графа
     const graphState = {
         triplets: [],           // Исходные триплеты [{node1, edge, node2}]
@@ -24,10 +24,10 @@ function startGraph () {
         // Параметры физики
         physicsEnabled: true,
         repulsionForce: 45000,    // Сила отталкивания
-        springLength: 200,       // Желаемая длина ребра
+        springLength: bifur ? 150 : 200,       // Желаемая длина ребра
         springForce: 0.03,       // Сила притяжения
         damping: 0.9,            // Затухание
-        minRadius: 5,            // Минимальный радиус узла
+        minRadius: bifur ? 20 : 5,            // Минимальный радиус узла
         maxRadius: 20,           // Максимальный радиус узла
         
         // Интерактивность
@@ -95,7 +95,11 @@ function startGraph () {
             
             // Вызов Python функции для получения триплетов
             // Ожидаемый формат: [{node1: "Температура", edge: "влияет", node2: "Давление"}, ...]
-            const triplets = await eel.get_graph_data()();
+            var triplets
+            if (bifur)
+                triplets = await eel.get_bifur_data()();
+            else
+                triplets = await eel.get_graph_data()();
             
             // Обрабатываем триплеты
             processTriplets(triplets);
@@ -192,7 +196,20 @@ function startGraph () {
     
     // Добавление узла если его ещё нет
     function addNodeIfNotExists(label) {
-        if (!label) return;
+        //if (!label) return;
+
+        var color_fill = '#e1eaf8'
+        var color_line = '#1f3a6b'
+        // Node color by label
+        if (label.startsWith("res:")) {
+            color_fill = '#78a0ec'
+            //label = label.slice(4)
+        }
+        if (label.startsWith("bif:")) {
+            color_fill = '#ffa6a6'
+            color_line = '#980000'
+            //label = label.slice(4)
+        }
         
         if (!graphState.nodeIdMap.has(label)) {
             const id = graphState.nextNodeId++;
@@ -205,7 +222,9 @@ function startGraph () {
                 vx: 0,
                 vy: 0,
                 radius: 10, // Временный радиус
-                connections: 0
+                connections: 0,
+                color_fill: color_fill,
+                color_line: color_line
             });
         }
         
@@ -461,11 +480,11 @@ function startGraph () {
             ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
             
             // Заливка
-            ctx.fillStyle = isHovered ? '#e1eaf8' : '#f0f4fe';
+            ctx.fillStyle = !isHovered ? node.color_fill : '#f0f4fe';
             ctx.fill();
             
             // Обводка
-            ctx.strokeStyle = isHovered ? '#1f3a6b' : '#b8ccf0';
+            ctx.strokeStyle = !isHovered ? node.color_line : '#b8ccf0';
             ctx.lineWidth = isHovered ? 3 : 2;
             ctx.stroke();
             
@@ -474,7 +493,7 @@ function startGraph () {
             ctx.fillStyle = '#0b2b4f';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(node.label.substring(0, 20), node.x, node.y);
+            ctx.fillText(node.label.substring(0, 30), node.x, node.y);
         });
     }
     

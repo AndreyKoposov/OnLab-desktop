@@ -260,6 +260,39 @@ def get_graph_data():
         })
     return triplets
 
+@eel.expose
+def get_bifur_data():
+    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    triplets = []
+
+    # Stages
+    for i, _ in enumerate(proc.stages):
+        if i+1 < len(proc.stages):
+            triplets.append({
+                "node1": proc.stages[i],
+                "edge": "Условие выполнено",
+                "node2": proc.stages[i+1]
+            })
+
+    # Resources
+    for stage in proc.stages:
+        for param in proc.params[stage]["resource"]:
+            triplets.append({
+                "node1": f"res:{param['name']}",
+                "edge": param["condition"],
+                "node2": stage
+            })
+
+    # Bifurcations
+    for stage in proc.stages:
+        for param in proc.params[stage]["resource"]:
+            triplets.append({
+                "node1": stage,
+                "edge": "Условие невыполнено",
+                "node2": f"bif:{param['result']}"
+            })
+    return triplets
+
 def replace_rdf(el: str, pr_id: int) -> str:
     el = el.replace(f"http://{pr_id}/", "")
     el = el.replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "")
@@ -269,8 +302,7 @@ def replace_rdf(el: str, pr_id: int) -> str:
 
     return el
 
+
 if __name__ == "__main__":
     processes = fm.get_processes()
-    for s1, p1, o1 in processes[1].rdf.g:
-        print(s1, p1, o1)
     eel.start('index.html', size=(3000, 2000), port=8100)
