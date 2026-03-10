@@ -238,7 +238,7 @@ async function initGUI() {
     <!-- Заголовок -->
     <div class="graph-header">
         <h3>
-            🕸️ Граф процессов
+            ${btnNumber == 5 ? "🕸️ Граф процесса" : "🔀 Визуализация точек бифуркации"}
         </h3>
         <div class="graph-stats" id="graphStats">
             <div class="graph-stat-item">Вершин: <span id="nodesCount">0</span></div>

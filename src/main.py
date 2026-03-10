@@ -1,4 +1,3 @@
-import copy
 import eel
 from file_manager import FileManager
 from config import ROOT

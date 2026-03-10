@@ -26,4 +26,4 @@ PyInstaller.__main__.run([
     '--windowed',
     '--clean'
 ])
-os.system('hide_internal.bat')
+#os.system('hide_internal.bat')
