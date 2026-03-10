@@ -258,6 +258,21 @@ async function initGUI() {
         
         <!-- Tooltip для отображения информации при наведении -->
         <div id="graphTooltip" class="graph-tooltip" style="display: none;"></div>
+
+        <div class="bifurcation-legend" id="legend-div">
+            <div class="legend-item">
+                <div class="legend-color stage"></div>
+                <span>Этапы</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color resource"></div>
+                <span>Ресурсы</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bifurcation"></div>
+                <span>Бифуркации</span>
+            </div>
+        </div>
     </div>
     
     <!-- Панель управления -->

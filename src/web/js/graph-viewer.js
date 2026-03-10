@@ -36,6 +36,9 @@ function startGraph (bifur = false) {
         tooltipVisible: false
     };
 
+    // Disable bifurcation legend
+    document.getElementById("legend-div").style.visibility = bifur ? "visible" : "hidden";
+
     // DOM элементы
     const canvas = document.getElementById('graphCanvas');
     const ctx = canvas?.getContext('2d');

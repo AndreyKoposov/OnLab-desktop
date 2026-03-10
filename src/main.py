@@ -270,7 +270,7 @@ def get_bifur_data():
         if i+1 < len(proc.stages):
             triplets.append({
                 "node1": proc.stages[i],
-                "edge": "Условие выполнено",
+                "edge": "✅",
                 "node2": proc.stages[i+1]
             })
 
@@ -288,7 +288,7 @@ def get_bifur_data():
         for param in proc.params[stage]["resource"]:
             triplets.append({
                 "node1": stage,
-                "edge": "Условие невыполнено",
+                "edge": "❌",
                 "node2": f"bif:{param['result']}"
             })
     return triplets
