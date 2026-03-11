@@ -13,7 +13,7 @@ class FileManager():
         if not Path.exists(self.work_dir):
             makedirs(self.work_dir)
 
-    def get_processes(self) -> list[Process]:
+    async def get_processes(self) -> list[Process]:
         processes = list[Process]()
 
         for file in self.work_dir.iterdir():
@@ -24,7 +24,7 @@ class FileManager():
 
         return processes
 
-    def create_process(self, pr_id: int, name: str, created: str) -> Process:
+    async def create_process(self, pr_id: int, name: str, created: str) -> Process:
         pr_dir = self.work_dir/f"pr_{pr_id}"
         pr_dir.mkdir()
 

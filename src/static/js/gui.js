@@ -300,7 +300,12 @@ async function initGUI() {
         // Очистка списка процессов
         processes = []
         // Запрос процессов от python eel
-        infos = await eel.fetch_processes()()
+        //infos = await eel.fetch_processes()()
+        infos = []
+        await fetch("/processes")
+            .then(response => response.json())  
+            .then(data => infos = data.content)
+            .catch(error => console.error(error));
         // Добавляем процессы в список
         for (let i = 0; i < infos.length; i++) {
             pr_id = infos[i]["id"]
@@ -357,7 +362,13 @@ async function initGUI() {
         // Визуальная подсветка
         highlightProcess(id)
         // Здесь можно добавить логику загрузки данных выбранного процесса
-        eel.select_process(id)()
+        fetch("/processes/select", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ pr_id: id }),
+        })
         const process = processes.find(p => p.id === id)
         const option = process["option"];
         console.log('Выбран процесс:', process.name);
@@ -494,20 +505,42 @@ async function initGUI() {
             if (process) {
                 if (deleteMode) {
                     if (name === process.name)
-                        await eel.delete_process(process.id)();
+                        await fetch("/processes/delete", {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ pr_id: process.id }),
+                        })
+                        //await eel.delete_process(process.id)();
                     else {
                         alert('Неверно введено название!');
                         return;
                     }
                 }
                 else
-                    await eel.edit_process(process.id, name)();
+                    await fetch("/processes/rename", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ pr_id: process.id, new_name: name }),
+                    })
+                    //await eel.edit_process(process.id, name)();
 
                 await fetch_processes()
             }
         } else {
             // Создание нового
-            await eel.create_process(name)();
+            await fetch("/processes/create", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ pr_name: name }),
+            })
+            .catch(error => console.error(error));
+            //await eel.create_process(name)();
             await fetch_processes()
         }
 
@@ -540,7 +573,13 @@ async function initGUI() {
     });
     // Сохранение выбранной опции и обновление значения в списке процессов
     function set_option(option) {
-        eel.set_option(option)();
+        fetch("/processes/set-option", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ option: option }),
+        })
         const process = processes.find(p => p.id === selectedProcessId);
         process.option = option;
     }

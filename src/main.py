@@ -1,8 +1,12 @@
-import eel
+from fastapi import FastAPI, Response, Request, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi import APIRouter, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from file_manager import FileManager
-from config import ROOT
 from assistant import Assistant
 from process import Process
+import uvicorn
+from models import OnLabResponse, OnLabRequest
 
 
 class AppData():
@@ -17,51 +21,52 @@ class AppData():
 
     cur_id = property(get_id, set_id)
 
-
-eel.init(str(ROOT/'web'))
-fm = FileManager()
-processes: list[Process]
-data = AppData()
-assistant = Assistant()
+router = APIRouter()
+app = FastAPI(title="Ontology Lab")
+app.state.fm = FileManager()
+app.state.processes = []
+app.state.data = AppData()
+app.state.assistant = Assistant()
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 
 def ID():
-    data = fm.load_app_data()
+    data = app.state.fm.load_app_data()
     id_to_return = data["id"]
     data["id"] = id_to_return + 1
-    fm.save_app_data(data)
+    app.state.fm.save_app_data(data)
 
     return id_to_return
 
 # Процессы ============================
-@eel.expose
-def create_process(pr_name: str):
-    proc = fm.create_process(ID(), pr_name, "07.03.2026")
-    processes.append(proc)
+@router.post("/processes/create")
+async def create_process(request: OnLabRequest):
+    proc = await app.state.fm.create_process(ID(), request.pr_name, "07.03.2026")
+    app.state.processes.append(proc)
 
-@eel.expose
-def edit_process(pr_id: int, new_name: str):
-    proc = next(filter(lambda pr: pr.id == pr_id, processes))
-    proc.name = new_name
-    fm.save_process(proc)
+@router.post("/processes/rename")
+def edit_process(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == request.pr_id, app.state.processes))
+    proc.name = request.new_name
+    app.state.fm.save_process(proc)
 
-@eel.expose
-def delete_process(pr_id: int):
-    proc = next(filter(lambda pr: pr.id == pr_id, processes))
-    processes.remove(proc)
-    fm.delete_process(pr_id)
+@router.post("/processes/delete")
+def delete_process(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == request.pr_id, app.state.processes))
+    app.state.processes.remove(proc)
+    app.state.fm.delete_process(request.pr_id)
 
-@eel.expose
-def set_option(option: int):
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
-    proc.option = option
-    fm.save_process(proc)
+@router.post("/processes/set-option")
+def set_option(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc.option = request.option
+    app.state.fm.save_process(proc)
 
-@eel.expose
-def fetch_processes():
+@router.get("/processes", response_model=OnLabResponse)
+async def fetch_processes():
+    app.state.processes = await app.state.fm.get_processes()
     procs = []
-
-    for proc in processes:
+    for proc in app.state.processes:
         procs.append({
             "id": proc.id,
             "name": proc.name,
@@ -71,14 +76,13 @@ def fetch_processes():
             "count": proc.count_elements()
         })
 
-    return procs
+    return OnLabResponse(content=procs)
 
-@eel.expose
-def select_process(pr_id: int):
-    data.cur_id = pr_id
+@router.post("/processes/select")
+def select_process(request: OnLabRequest):
+    app.state.data.cur_id = request.pr_id
 
 # Ассистент ============================
-@eel.expose
 def send_message(text: str, time: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     msg = {
@@ -90,14 +94,12 @@ def send_message(text: str, time: str):
     assistant.answer(text, proc)
     fm.save_process(proc)
 
-@eel.expose
 def fetch_messages():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
 
     return proc.messages
 
 # XML ============================
-@eel.expose
 def get_xml_document():
     return {
         "content": fm.load_xml(data.cur_id),
@@ -105,7 +107,6 @@ def get_xml_document():
         "filename": "rdf.xml"
     }
 
-@eel.expose
 def save_xml_document(content: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     isValid = proc.validate_xml(content)
@@ -118,13 +119,11 @@ def save_xml_document(content: str):
         "error": "XML is invalid!"
     }
 
-@eel.expose
 def validate_xml(content: str):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     return {"isValid": proc.validate_xml(content)}
 
 # TABLE ============================
-@eel.expose
 def get_table_data():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     params = proc.params
@@ -153,7 +152,6 @@ def get_table_data():
     return table
 
 # STRUCTURE ============================
-@eel.expose
 def get_process_stages():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     result = []
@@ -170,7 +168,6 @@ def get_process_stages():
             pass
     return result
 
-@eel.expose
 def get_stage_parameters(stage_id: int):
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     stage = proc.stages[stage_id]
@@ -206,7 +203,6 @@ def get_stage_parameters(stage_id: int):
                 pass
     return result
 
-@eel.expose
 def get_param_info(stage_id: int, name: str, category: str):
     info = {
         "id": 0,
@@ -247,7 +243,6 @@ def get_param_info(stage_id: int, name: str, category: str):
 
     return info
 
-@eel.expose
 def get_graph_data():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     triplets = []
@@ -259,7 +254,6 @@ def get_graph_data():
         })
     return triplets
 
-@eel.expose
 def get_bifur_data():
     proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
     triplets = []
@@ -292,6 +286,7 @@ def get_bifur_data():
             })
     return triplets
 
+
 def replace_rdf(el: str, pr_id: int) -> str:
     el = el.replace(f"http://{pr_id}/", "")
     el = el.replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "")
@@ -302,6 +297,15 @@ def replace_rdf(el: str, pr_id: int) -> str:
     return el
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(router)
+
+
 if __name__ == "__main__":
-    processes = fm.get_processes()
-    eel.start('index.html', mode="default", size=(3000, 2000), port=8100)
+    uvicorn.run("main:app", host="127.0.0.1", port=8010)
