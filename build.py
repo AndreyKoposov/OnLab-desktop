@@ -19,6 +19,8 @@ PyInstaller.__main__.run([
     'src/main.py',
     '--onedir',
     '--name=OnLab',
+    '--collect-data=transliterate',
+    '--add-data=.venv\\Lib\\site-packages\\transliterate\\contrib\\languages;transliterate\\contrib\\languages',
     '--add-data=src/web;web',
     '--add-data=src/processes;processes',
     '--add-data=src/data.json;.',

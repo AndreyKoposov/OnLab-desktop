@@ -304,4 +304,4 @@ def replace_rdf(el: str, pr_id: int) -> str:
 
 if __name__ == "__main__":
     processes = fm.get_processes()
-    eel.start('index.html', size=(3000, 2000), port=8100)
+    eel.start('index.html', mode="default", size=(3000, 2000), port=8100)

@@ -4,6 +4,7 @@ from rdflib import Graph, URIRef, Namespace
 from rdflib.namespace import RDF, OWL, RDFS, XSD
 from rdflib.tools.rdf2dot import rdf2dot
 from transliterate import translit
+from transliterate.contrib.languages import ru
 import graphviz
 
 
@@ -108,7 +109,8 @@ class RdfModel():
 
     def transliterate_russian(self, text):
         """Транслитерирует русский текст в латиницу"""
-        return self.format_text(translit(text, 'ru', reversed=True))
+        print(ru.__file__)
+        return self.format_text(translit(text, "ru", reversed=True))
 
     def to_xml(self, file_name: str):
         """Сериализует граф в xml формат"""
