@@ -62,7 +62,12 @@ function initXMLviewer() {
             showLoading(true);
             
             // Вызов Python функции для получения XML
-            const result = await eel.get_xml_document()();
+            //const result = await eel.get_xml_document()();
+            var result = {};
+            await fetch("/processes/xml/")
+                .then(response => response.json())  
+                .then(data => result = data.structure)
+                .catch(error => console.error(error));
             
             // Обновляем состояние
             xmlState.currentContent = result.content;
@@ -92,7 +97,18 @@ function initXMLviewer() {
             showLoading(true);
             
             // Вызов Python функции для сохранения
-            const result = await eel.save_xml_document(xmlState.currentContent)();
+            //const result = await eel.save_xml_document(xmlState.currentContent)();
+            var result = {}
+            await fetch("/processes/xml/save", {
+                method: "POST",
+                headers: {
+                      "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ content: xmlState.currentContent }),
+            })
+                .then(response => response.json())  
+                .then(data => result = data.structure)
+                .catch(error => console.error(error));
             
             if (result.success) {
                 xmlState.originalContent = xmlState.currentContent;
@@ -115,7 +131,18 @@ function initXMLviewer() {
     // Валидация XML
     async function validateXml(content) {
         try {
-            const result = await eel.validate_xml(content)();
+            //const result = await eel.validate_xml(content)();
+            var result = {}
+            await fetch("/processes/xml/check", {
+                method: "POST",
+                headers: {
+                      "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ content: content }),
+            })
+                .then(response => response.json())  
+                .then(data => result = data.structure)
+
             xmlState.isValid = result.isValid;
             updateValidationStatus(result.isValid);
             return result.isValid;

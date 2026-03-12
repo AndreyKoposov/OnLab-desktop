@@ -50,7 +50,11 @@ function startStructure() {
             
             // Вызов Python функции для получения этапов
             // Ожидаемый формат: [{ id: 1, name: 'Этап 1', description: '...', paramCount: 5 }, ...]
-            const stages = await eel.get_process_stages()();
+            //const stages = await eel.get_process_stages()();
+            await fetch("/processes/stages")
+                .then(response => response.json())  
+                .then(json => stages = json.content)
+                .catch(error => console.error(error));
             
             structureState.stages = stages || [];
             renderStages();
@@ -84,7 +88,17 @@ function startStructure() {
             //   resource: [...],
             //   output: [...]
             // }
-            const parameters = await eel.get_stage_parameters(stageId)();
+            //const parameters = await eel.get_stage_parameters(stageId)();
+            await fetch("/processes/params/", {
+                method: "POST",
+                headers: {
+                      "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ stage_id: stageId }),
+            })
+                .then(response => response.json())  
+                .then(data => parameters = data.structure)
+                .catch(error => console.error(error));
             
             structureState.parameters = parameters || {};
             structureState.currentStageId = stageId;
@@ -117,7 +131,18 @@ function startStructure() {
             //   constraints: '...',
             //   source: 'ГОСТ ...'
             // }
-            const info = await eel.get_param_info(structureState.currentStageId, parameterId, category)();
+            //const info = await eel.get_param_info(structureState.currentStageId, parameterId, category)();
+            var info = {}
+            await fetch("/processes/params/info", {
+                method: "POST",
+                headers: {
+                      "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ stage_id: structureState.currentStageId, name: parameterId, category: category }),
+            })
+                .then(response => response.json())  
+                .then(data => info = data.structure)
+                .catch(error => console.error(error));
             
             structureState.currentParameterId = parameterId;
             renderParameterInfo(info);

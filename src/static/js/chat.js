@@ -43,8 +43,12 @@ function startChat() {
 
     // Загрузка сообщений из localStorage (для демо)
     async function loadMessages() {
-        //const saved = localStorage.getItem('chatMessages');
-        const story = await eel.fetch_messages()()
+        var story = []
+        await fetch("/processes/chat/")
+            .then(response => response.json())  
+            .then(data => story = data.content)
+            .catch(error => console.error(error));
+        //const story = await eel.fetch_messages()()
         if (story.length > 0) {
             try {
                 for (var i = 0; i < story.length; i++) {
@@ -81,9 +85,20 @@ function startChat() {
 
         // Показываем индикатор печатания
         showTypingIndicator();
-        await eel.send_message(text, time)();
+        //await eel.send_message(text, time)();
+        await fetch("/processes/chat/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: text, time: time }),
+        })
         hideTypingIndicator();
-        const story = await eel.fetch_messages()()
+        var story = []
+        await fetch("/processes/chat/")
+            .then(response => response.json())  
+            .then(data => story = data.content)
+            .catch(error => console.error(error));
         chatState.messages = []
         for (var i = 0; i < story.length; i++) {
             msg = story[i]

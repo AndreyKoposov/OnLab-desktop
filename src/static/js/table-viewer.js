@@ -64,7 +64,12 @@ function startTable() {
             
             // Вызов Python функции для получения данных
             // Ожидаемый формат: [{ param: '', feature: '', transformation: '' }, ...]
-            const data = await eel.get_table_data()();
+            //const data = await eel.get_table_data()();
+            var data = []
+            await fetch("/processes/table")
+                .then(response => response.json())  
+                .then(json => data = json.content)
+                .catch(error => console.error(error));
             
             // Обновляем состояние
             tableState.data = data || [];
@@ -83,26 +88,26 @@ function startTable() {
     }
     
     // Экспорт в Excel
-    async function exportToExcel() {
-        try {
-            showLoading(true);
-            
-            // Вызов Python функции для экспорта
-            const result = await eel.export_table_to_excel(tableState.data)();
-            
-            if (result.success) {
-                showMessage('Файл Excel успешно скачан');
-            } else {
-                showError('Ошибка экспорта: ' + (result.error || 'Неизвестная ошибка'));
-            }
-            
-            showLoading(false);
-        } catch (error) {
-            console.error('Ошибка экспорта в Excel:', error);
-            showLoading(false);
-            showError('Не удалось экспортировать данные');
-        }
-    }
+    //async function exportToExcel() {
+    //    try {
+    //        showLoading(true);
+    //        
+    //        // Вызов Python функции для экспорта
+    //        const result = await eel.export_table_to_excel(tableState.data)();
+    //        
+    //        if (result.success) {
+    //            showMessage('Файл Excel успешно скачан');
+    //        } else {
+    //            showError('Ошибка экспорта: ' + (result.error || 'Неизвестная ошибка'));
+    //        }
+    //        
+    //        showLoading(false);
+    //    } catch (error) {
+    //        console.error('Ошибка экспорта в Excel:', error);
+    //        showLoading(false);
+    //        showError('Не удалось экспортировать данные');
+    //    }
+    //}
     
     // Обновление данных
     async function refreshData() {

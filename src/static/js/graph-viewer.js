@@ -100,9 +100,17 @@ function startGraph (bifur = false) {
             // Ожидаемый формат: [{node1: "Температура", edge: "влияет", node2: "Давление"}, ...]
             var triplets
             if (bifur)
-                triplets = await eel.get_bifur_data()();
+                //triplets = await eel.get_bifur_data()();
+                await fetch("/processes/bifur")
+                    .then(response => response.json())  
+                    .then(json => triplets = json.content)
+                    .catch(error => console.error(error));
             else
-                triplets = await eel.get_graph_data()();
+                //triplets = await eel.get_graph_data()();
+                await fetch("/processes/graph")
+                    .then(response => response.json())  
+                    .then(json => triplets = json.content)
+                    .catch(error => console.error(error));
             
             // Обрабатываем триплеты
             processTriplets(triplets);

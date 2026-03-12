@@ -83,49 +83,55 @@ def select_process(request: OnLabRequest):
     app.state.data.cur_id = request.pr_id
 
 # Ассистент ============================
-def send_message(text: str, time: str):
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+@router.post("/processes/chat/send")
+def send_message(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
     msg = {
-        "text": text,
+        "text": request.text,
         "sender": "user",
-        "time": time
+        "time": request.time
     }
     proc.messages.append(msg)
-    assistant.answer(text, proc)
-    fm.save_process(proc)
+    app.state.assistant.answer(request.text, proc)
+    app.state.fm.save_process(proc)
 
+@router.get("/processes/chat/")
 def fetch_messages():
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
 
-    return proc.messages
+    return OnLabResponse(content=proc.messages)
 
 # XML ============================
+@router.get("/processes/xml/")
 def get_xml_document():
-    return {
-        "content": fm.load_xml(data.cur_id),
+    return OnLabResponse(structure={
+        "content": app.state.fm.load_xml(app.state.data.cur_id),
         "isValid": True,
         "filename": "rdf.xml"
-    }
+    })
 
-def save_xml_document(content: str):
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
-    isValid = proc.validate_xml(content)
+@router.post("/processes/xml/save")
+def save_xml_document(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    isValid = proc.validate_xml(request.content)
     if isValid:
-        fm.save_xml(data.cur_id, content)
+        app.state.fm.save_xml(app.state.data.cur_id, request.content)
 
-    return {
+    return OnLabResponse(structure={
         "success": isValid,
         "isValid": isValid,
         "error": "XML is invalid!"
-    }
+    })
 
-def validate_xml(content: str):
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
-    return {"isValid": proc.validate_xml(content)}
+@router.post("/processes/xml/check")
+def validate_xml(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    return OnLabResponse(structure={"isValid": proc.validate_xml(request.content)})
 
 # TABLE ============================
+@router.get("/processes/table")
 def get_table_data():
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
     params = proc.params
 
     table = []
@@ -149,11 +155,12 @@ def get_table_data():
                 table.append(entry)
                 index += 1
 
-    return table
+    return OnLabResponse(content=table)
 
 # STRUCTURE ============================
+@router.get("/processes/stages")
 def get_process_stages():
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
     result = []
     stages = proc.stages
     for stage in stages:
@@ -166,11 +173,12 @@ def get_process_stages():
             result.append(entry)
         except KeyError as err:
             pass
-    return result
+    return OnLabResponse(content=result)
 
-def get_stage_parameters(stage_id: int):
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
-    stage = proc.stages[stage_id]
+@router.post("/processes/params")
+def get_stage_parameters(request: OnLabRequest):
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    stage = proc.stages[request.stage_id]
     params = proc.params[stage]
 
     result = {
@@ -201,12 +209,13 @@ def get_stage_parameters(stage_id: int):
                 index += 1
             except KeyError:
                 pass
-    return result
+    return OnLabResponse(structure=result)
 
-def get_param_info(stage_id: int, name: str, category: str):
+@router.post("/processes/params/info")
+def get_param_info(request: OnLabRequest):
     info = {
         "id": 0,
-        "name": name,
+        "name": request.name,
         "measure": '°C',
         "description": 'Описание параметра',
         "type": 'continuous',
@@ -216,23 +225,23 @@ def get_param_info(stage_id: int, name: str, category: str):
         "source": 'ГОСТ 1234.56'
     }
 
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
-    stage = proc.stages[stage_id]
-    params = proc.params[stage][category]
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    stage = proc.stages[request.stage_id]
+    params = proc.params[stage][request.category]
     for param in params:
-        if param["name"] == name:
+        if param["name"] == request.name:
             info["measure"] = param["unit"]
             info["unit"] = param["unit"]
             info["description"] = param["description"]
             info["type"] = "material" if param["unit"] == "-" else "continous"
 
-            if category == "main":
+            if request.category == "main":
                 info["constraints"] = param["output_value"]
                 info["value"] = "" if param["unit"] == "-" else param["output_value"]
-            elif category == "control":
+            elif request.category == "control":
                 info["constraints"] = param["input_value"]
                 info["value"] = "" if param["unit"] == "-" else param["input_value"]
-            elif category == "resource":
+            elif request.category == "resource":
                 info["constraints"] = param["expected_value"]
                 info["condition"] = param["condition"]
                 info["result"] = param["result"]
@@ -241,10 +250,12 @@ def get_param_info(stage_id: int, name: str, category: str):
                 info["constraints"] = param["input_value"]
                 info["value"] = "" if param["unit"] == "-" else param["input_value"]
 
-    return info
+    return OnLabResponse(structure=info)
 
+# GRAPHS ============================
+@router.get("/processes/graph")
 def get_graph_data():
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
     triplets = []
     for s, p, o in proc.rdf.g:
         triplets.append({
@@ -252,10 +263,11 @@ def get_graph_data():
             "edge": replace_rdf(p, proc.id),
             "node2": replace_rdf(o, proc.id)
         })
-    return triplets
+    return OnLabResponse(content=triplets)
 
+@router.get("/processes/bifur")
 def get_bifur_data():
-    proc = next(filter(lambda pr: pr.id == data.cur_id, processes))
+    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
     triplets = []
 
     # Stages
@@ -284,7 +296,7 @@ def get_bifur_data():
                 "edge": "❌",
                 "node2": f"bif:{param['result']}"
             })
-    return triplets
+    return OnLabResponse(content=triplets)
 
 
 def replace_rdf(el: str, pr_id: int) -> str:
