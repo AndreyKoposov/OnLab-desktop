@@ -38,7 +38,7 @@ class FileManager():
             dump(pr_structure, file, indent=4)
 
         return new_proc
-    
+
     def delete_process(self, pr_id: int):
         pr_dir = self.work_dir/f"pr_{pr_id}"
         for child in pr_dir.iterdir():

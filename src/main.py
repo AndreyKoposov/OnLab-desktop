@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from file_manager import FileManager
+from db_manager import DbManager
 from assistant import Assistant
 from process import Process
 import uvicorn
@@ -24,9 +25,11 @@ class AppData():
 router = APIRouter()
 app = FastAPI(title="Ontology Lab")
 app.state.fm = FileManager()
+app.state.dm = DbManager()
 app.state.processes = []
 app.state.data = AppData()
 app.state.assistant = Assistant()
+app.state.user_id = app.state.dm.get_user_id_by_name("andrey")
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 
@@ -40,8 +43,9 @@ def ID():
 
 # Процессы ============================
 @router.post("/processes/create")
-async def create_process(request: OnLabRequest):
-    proc = await app.state.fm.create_process(ID(), request.pr_name, "07.03.2026")
+def create_process(request: OnLabRequest):
+    # proc = await app.state.fm.create_process(ID(), request.pr_name, "07.03.2026")
+    proc = app.state.dm.create_process(app.state.user_id, request.pr_name, "07.03.2026")
     app.state.processes.append(proc)
 
 @router.post("/processes/rename")
@@ -63,8 +67,9 @@ def set_option(request: OnLabRequest):
     app.state.fm.save_process(proc)
 
 @router.get("/processes", response_model=OnLabResponse)
-async def fetch_processes():
-    app.state.processes = await app.state.fm.get_processes()
+def fetch_processes():
+    # app.state.processes = await app.state.fm.get_processes()
+    app.state.processes = app.state.dm.get_processes(app.state.user_id)
     procs = []
     for proc in app.state.processes:
         procs.append({

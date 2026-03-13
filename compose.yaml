@@ -1,0 +1,15 @@
+services:
+  postgres_dev:
+    image: postgres:15
+    container_name: my_project_db  # Дадим понятное имя контейнеру
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: onlab
+    ports:
+      - "8020:5432"  # <-- Ключевой момент! Порт БД будет доступен на localhost твоего компьютера
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:

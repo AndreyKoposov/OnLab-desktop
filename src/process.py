@@ -1,9 +1,10 @@
 from rdf_model import RdfModel
+from uuid import UUID
 
 
 class Process():
-    def __init__(self, new_id: int, name: str) -> None:
-        self.__id: int = new_id
+    def __init__(self, new_id: UUID, name: str) -> None:
+        self.__id: UUID = new_id
         self.name: str = name
         self.created: str = ""
         self.option: int = 1
@@ -14,7 +15,7 @@ class Process():
         self.__transitions: list[str] = []
         self.__params: dict = {}
 
-        self.__rdf = RdfModel(self.__id)
+        self.__rdf = RdfModel()
 
     def validate_xml(self, content: str) -> bool:
         return self.__rdf.validate_xml(content)
@@ -100,13 +101,14 @@ class Process():
     @staticmethod
     def serialize(proc) -> dict:
         res = proc.__dict__.copy()
+        res.pop("_Process__id", None)
         res.pop("_Process__rdf", None)
 
         return res
 
     @staticmethod
-    def deserialize(json_data: dict):
-        proc = Process(json_data["_Process__id"], json_data["name"])
+    def deserialize(pr_id: UUID, json_data: dict):
+        proc = Process(pr_id, json_data["name"])
         proc.created = json_data["created"]
         proc.option = json_data["option"]
         proc.messages = json_data["messages"]

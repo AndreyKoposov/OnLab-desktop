@@ -6,13 +6,14 @@ from rdflib.tools.rdf2dot import rdf2dot
 from transliterate import translit
 from transliterate.contrib.languages import ru
 import graphviz
+from uuid import UUID
 
 
 class RdfModel():
     """Класс для работы с rdf моделью"""
-    def __init__(self, pr_id: int) -> None:
+    def __init__(self) -> None:
         self.g = Graph()
-        self.ns = Namespace("http://" + str(pr_id) + "/")
+        self.ns = Namespace("http://1/")
 
         # Понятие сущности
         entity = self.ns.entity
