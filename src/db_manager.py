@@ -14,8 +14,8 @@ class DbManager():
                 dbname="onlab",
                 user="postgres",
                 password="1234",
-                host="localhost",
-                port="8020"
+                host="database",
+                port="5432"
             )
             self.__conn.autocommit = True
             self.create_tables()
