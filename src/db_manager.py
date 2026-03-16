@@ -112,3 +112,34 @@ class DbManager():
             processes.append(Process.deserialize(entry[0], entry[1]))
 
         return processes
+
+    def update_process(self, process: Process) -> bool:
+        if self.__conn is None:
+            return False
+
+        pr_id = process.id
+        process_data = Process.serialize(process)
+
+        cur = self.__conn.cursor()
+        cur.execute(
+            "UPDATE processes SET data = %s WHERE id = %s RETURNING id",
+            (json.dumps(process_data), pr_id)
+        )
+        updated = cur.fetchone()
+        cur.close()
+
+        return updated is not None
+    
+    def delete_process(self, pr_id) -> bool:
+        if self.__conn is None:
+            return False
+
+        cur = self.__conn.cursor()
+        cur.execute(
+            "DELETE FROM processes WHERE id = %s RETURNING id",
+            (pr_id,)
+        )
+        deleted = cur.fetchone()
+        cur.close()
+
+        return deleted is not None

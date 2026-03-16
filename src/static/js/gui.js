@@ -384,7 +384,7 @@ async function initGUI() {
     function highlightProcess(id) {
         // Обновляем классы у всех элементов
         document.querySelectorAll('.process-item').forEach(item => {
-            const itemId = parseInt(item.data_id);
+            const itemId = item.data_id;
             if (itemId === id) {
                 item.classList.add('selected');
             } else {
@@ -425,7 +425,7 @@ async function initGUI() {
                 if (e.target.classList.contains('edit-process-btn')) {
                     return;
                 }
-                const id = parseInt(item.data_id);
+                const id = item.data_id;
                 selectProcess(id);
             });
         });
@@ -434,7 +434,8 @@ async function initGUI() {
         document.querySelectorAll('.edit-process-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
+                console.log("here")
+                const id = btn.dataset.id;
                 const type = btn.dataset.type;
                 if (type === "delete")
                     openDeleteModal(id);
@@ -465,7 +466,7 @@ async function initGUI() {
             processNameInput.focus();
         }
         else {
-            console.log("Cant find process with id " + process.id)
+            console.log("Cant find process with id " + id)
         }
     }
     // Функция открытия модального окна для удаления

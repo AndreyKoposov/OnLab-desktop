@@ -113,10 +113,10 @@ class RdfModel():
         print(ru.__file__)
         return self.format_text(translit(text, "ru", reversed=True))
 
-    def to_xml(self, file_name: str):
+    def to_xml(self):
         """Сериализует граф в xml формат"""
-        dest = file_name
-        self.g.serialize(dest, format="xml")
+        # dest = file_name
+        return self.g.serialize(format="xml")
 
     def to_img(self, file_name: str):
         """Сериализует граф в png картинку"""

@@ -2,12 +2,12 @@ from fastapi import FastAPI, Response, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from file_manager import FileManager
 from db_manager import DbManager
 from assistant import Assistant
 from process import Process
 import uvicorn
 from models import OnLabResponse, OnLabRequest
+from uuid import UUID
 
 
 class AppData():
@@ -24,10 +24,9 @@ class AppData():
 
 router = APIRouter()
 app = FastAPI(title="Ontology Lab")
-app.state.fm = FileManager()
 app.state.dm = DbManager()
 app.state.processes = []
-app.state.data = AppData()
+app.state.cur_id = ""
 app.state.assistant = Assistant()
 app.state.user_id = app.state.dm.get_user_id_by_name("andrey")
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
@@ -52,19 +51,21 @@ def create_process(request: OnLabRequest):
 def edit_process(request: OnLabRequest):
     proc = next(filter(lambda pr: pr.id == request.pr_id, app.state.processes))
     proc.name = request.new_name
-    app.state.fm.save_process(proc)
+    if app.state.dm.update_process(proc) is None:
+        raise ValueError
 
 @router.post("/processes/delete")
 def delete_process(request: OnLabRequest):
     proc = next(filter(lambda pr: pr.id == request.pr_id, app.state.processes))
     app.state.processes.remove(proc)
-    app.state.fm.delete_process(request.pr_id)
+    if app.state.dm.delete_process(request.pr_id) is None:
+        raise ValueError
 
 @router.post("/processes/set-option")
 def set_option(request: OnLabRequest):
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     proc.option = request.option
-    app.state.fm.save_process(proc)
+    app.state.dm.update_process(proc)
 
 @router.get("/processes", response_model=OnLabResponse)
 def fetch_processes():
@@ -85,12 +86,12 @@ def fetch_processes():
 
 @router.post("/processes/select")
 def select_process(request: OnLabRequest):
-    app.state.data.cur_id = request.pr_id
+    app.state.cur_id = request.pr_id
 
 # Ассистент ============================
 @router.post("/processes/chat/send")
 def send_message(request: OnLabRequest):
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     msg = {
         "text": request.text,
         "sender": "user",
@@ -98,45 +99,51 @@ def send_message(request: OnLabRequest):
     }
     proc.messages.append(msg)
     app.state.assistant.answer(request.text, proc)
-    app.state.fm.save_process(proc)
+    app.state.dm.update_process(proc)
 
 @router.get("/processes/chat/")
 def fetch_messages():
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
 
     return OnLabResponse(content=proc.messages)
 
 # XML ============================
 @router.get("/processes/xml/")
 def get_xml_document():
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     return OnLabResponse(structure={
-        "content": app.state.fm.load_xml(app.state.data.cur_id),
+        "content": proc.rdf.to_xml(),
         "isValid": True,
         "filename": "rdf.xml"
     })
 
 @router.post("/processes/xml/save")
 def save_xml_document(request: OnLabRequest):
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
-    isValid = proc.validate_xml(request.content)
-    if isValid:
-        app.state.fm.save_xml(app.state.data.cur_id, request.content)
-
     return OnLabResponse(structure={
-        "success": isValid,
-        "isValid": isValid,
+        "success": True,
+        "isValid": True,
         "error": "XML is invalid!"
     })
+    # proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
+    # isValid = proc.validate_xml(request.content)
+    # if isValid:
+    #     app.state.fm.save_xml(app.state.cur_id, request.content)
+
+    # return OnLabResponse(structure={
+    #     "success": isValid,
+    #     "isValid": isValid,
+    #     "error": "XML is invalid!"
+    # })
 
 @router.post("/processes/xml/check")
 def validate_xml(request: OnLabRequest):
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     return OnLabResponse(structure={"isValid": proc.validate_xml(request.content)})
 
 # TABLE ============================
 @router.get("/processes/table")
 def get_table_data():
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     params = proc.params
 
     table = []
@@ -165,7 +172,7 @@ def get_table_data():
 # STRUCTURE ============================
 @router.get("/processes/stages")
 def get_process_stages():
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     result = []
     stages = proc.stages
     for stage in stages:
@@ -182,7 +189,7 @@ def get_process_stages():
 
 @router.post("/processes/params")
 def get_stage_parameters(request: OnLabRequest):
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     stage = proc.stages[request.stage_id]
     params = proc.params[stage]
 
@@ -230,7 +237,7 @@ def get_param_info(request: OnLabRequest):
         "source": 'ГОСТ 1234.56'
     }
 
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     stage = proc.stages[request.stage_id]
     params = proc.params[stage][request.category]
     for param in params:
@@ -260,7 +267,7 @@ def get_param_info(request: OnLabRequest):
 # GRAPHS ============================
 @router.get("/processes/graph")
 def get_graph_data():
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     triplets = []
     for s, p, o in proc.rdf.g:
         triplets.append({
@@ -272,7 +279,7 @@ def get_graph_data():
 
 @router.get("/processes/bifur")
 def get_bifur_data():
-    proc = next(filter(lambda pr: pr.id == app.state.data.cur_id, app.state.processes))
+    proc = next(filter(lambda pr: pr.id == app.state.cur_id, app.state.processes))
     triplets = []
 
     # Stages

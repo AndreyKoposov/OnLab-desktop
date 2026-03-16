@@ -9,7 +9,7 @@ class OnLabResponse(BaseModel):
 class OnLabRequest(BaseModel):
     """Request template"""
     pr_name: str = ""
-    pr_id: int = -1
+    pr_id: str = ""
     new_name: str = ""
     option: int = 0
     text: str = ""
