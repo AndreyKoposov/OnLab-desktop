@@ -1,8 +1,8 @@
 from enum import Enum
 from datetime import datetime
-from prompts import p_entities, p_stages, p_transitions, p_params
-from api_manager import ApiManager
-from process import Process
+from src.prompts import p_entities, p_stages, p_transitions, p_params
+from src.api_manager import ApiManager
+from src.process import Process
 
 
 class State(str, Enum):

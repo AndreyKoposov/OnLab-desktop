@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2.extras import register_uuid
 import uuid
 import json
-from process import Process
+from src.process import Process
 
 
 

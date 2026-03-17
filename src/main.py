@@ -2,11 +2,10 @@ from fastapi import FastAPI, Response, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from db_manager import DbManager
-from assistant import Assistant
-from process import Process
-import uvicorn
-from models import OnLabResponse, OnLabRequest
+from src.db_manager import DbManager
+from src.assistant import Assistant
+from src.process import Process
+from src.models import OnLabResponse, OnLabRequest
 from uuid import UUID
 
 
@@ -331,5 +330,5 @@ app.add_middleware(
 app.include_router(router)
 
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8010)
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="0.0.0.0", port=8010)

@@ -1,4 +1,4 @@
-from rdf_model import RdfModel
+from src.rdf_model import RdfModel
 from uuid import UUID
 
 

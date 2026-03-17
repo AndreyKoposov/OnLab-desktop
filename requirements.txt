@@ -20,6 +20,7 @@ gevent==25.9.1
 gevent-websocket==0.10.1
 graphviz==0.21
 greenlet==3.3.2
+gunicorn==25.1.0
 h11==0.16.0
 idna==3.11
 importlib_resources==6.5.2
