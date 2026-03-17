@@ -3,8 +3,9 @@ from json import dumps
 
 
 class ApiManager():
-    url = 'http://90.156.155.241/api/'
-    #url = 'http://localhost:8000/api/'
+    # url = 'http://90.156.155.241/api/'
+    # url = 'http://localhost:8000/api/'
+    url = 'http://gigachat:8010/api'
 
     @staticmethod
     def request(prompt: str, path: str):

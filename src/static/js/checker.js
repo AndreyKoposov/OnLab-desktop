@@ -1,5 +1,5 @@
 function startChecker() {
-    var url = "http://90.156.155.241/ping"
+    var url = "http://gigachat:8010/ping"
     // Создание проверщика
     const connectionChecker = getConnectionChecker(url, 20000);
     // Устанавливаем обработчики событий
