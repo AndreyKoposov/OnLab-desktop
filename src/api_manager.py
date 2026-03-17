@@ -5,7 +5,7 @@ from json import dumps
 class ApiManager():
     # url = 'http://90.156.155.241/api/'
     # url = 'http://localhost:8000/api/'
-    url = 'http://gigachat:8010/api'
+    url = 'http://gigachat:8000/api/'
 
     @staticmethod
     def request(prompt: str, path: str):
@@ -20,6 +20,7 @@ class ApiManager():
             json=payload,
             timeout=120
         )
+        print(response.json())
         return response.json()["content"]
 
 
